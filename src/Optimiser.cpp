@@ -19,6 +19,8 @@
         RAND_COMM       -- Consider a random commmunity for improvement.
         RAND_NEIGH_COMM -- Consider a random community among the neighbours
                            for improvement.
+        MUTABLE_NEIGH_COMMS -- Consider all neighbor communities for mutable
+                               nodes.
 ****************************************************************************/
 Optimiser::Optimiser()
 {
@@ -152,12 +154,200 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     // Collapse graph (i.e. community graph)
     vector<Graph*> new_collapsed_graphs(nb_layers);
     vector<MutableVertexPartition*> new_collapsed_partitions(nb_layers);
-
     for (size_t layer = 0; layer < nb_layers; layer++)
     {
       new_collapsed_graphs[layer] = collapsed_graphs[layer]->collapse_graph(collapsed_partitions[layer]);
       // Create collapsed partition (i.e. default partition of each node in its own community).
       new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer]);
+      
+      #ifdef DEBUG
+        cerr << "Layer " << layer << endl;
+        cerr << "Old collapsed graph " << collapsed_graphs[layer] << ", vcount is " << collapsed_graphs[layer]->vcount() << endl;
+        cerr << "New collapsed graph " << new_collapsed_graphs[layer] << ", vcount is " << new_collapsed_graphs[layer]->vcount() << endl;
+      #endif
+    }
+
+    aggregate_further = (new_collapsed_graphs[0]->vcount() < collapsed_graphs[0]->vcount()) &&
+                        (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->nb_communities());
+
+    #ifdef DEBUG
+      cerr << "Aggregate further " << aggregate_further << endl;
+    #endif
+
+    // Delete the previous collapsed partition and graph
+    for (size_t layer = 0; layer < nb_layers; layer++)
+    {
+      if (collapsed_partitions[layer] != partitions[layer])
+        delete collapsed_partitions[layer];
+      if (collapsed_graphs[layer] != graphs[layer])
+        delete collapsed_graphs[layer];
+    }
+
+    // and set them to the new one.
+    collapsed_partitions = new_collapsed_partitions;
+    collapsed_graphs = new_collapsed_graphs;
+
+    #ifdef DEBUG
+      for (size_t layer = 0; layer < nb_layers; layer++)
+      {
+        cerr <<   "Calculate partition " << layer  << " quality." << endl;
+        q = partitions[layer]->quality()*layer_weights[layer];
+        cerr <<   "Calculate collapsed partition quality." << endl;
+        double q_collapsed = 0.0;
+        q_collapsed += collapsed_partitions[layer]->quality()*layer_weights[layer];
+        if (fabs(q - q_collapsed) > 1e-6)
+        {
+          cerr << "ERROR: Quality of original partition and collapsed partition are not equal." << endl;
+        }
+        cerr <<   "partition->quality()=" << q
+             << ", collapsed_partition->quality()=" << q_collapsed << endl;
+        cerr <<   "graph->total_weight()=" << graphs[layer]->total_weight()
+             << ", collapsed_graph->total_weight()=" << collapsed_graphs[layer]->total_weight() << endl;
+        cerr <<   "graph->vcount()=" << graphs[layer]->vcount()
+             << ", collapsed_graph->vcount()="  << collapsed_graphs[layer]->vcount() << endl;
+        cerr <<   "graph->ecount()=" << graphs[layer]->ecount()
+             << ", collapsed_graph->ecount()="  << collapsed_graphs[layer]->ecount() << endl;
+        cerr <<   "graph->is_directed()=" << graphs[layer]->is_directed()
+             << ", collapsed_graph->is_directed()="  << collapsed_graphs[layer]->is_directed() << endl;
+        cerr <<   "graph->correct_self_loops()=" << graphs[layer]->correct_self_loops()
+             << ", collapsed_graph->correct_self_loops()="  << collapsed_graphs[layer]->correct_self_loops() << endl << endl;
+      }
+    #endif // DEBUG
+
+  } while (improv > 0);
+
+  // Clean up memory after use.
+  for (size_t layer = 0; layer < nb_layers; layer++)
+  {
+    if (collapsed_partitions[layer] != partitions[layer])
+      delete collapsed_partitions[layer];
+
+    if (collapsed_graphs[layer] != graphs[layer])
+      delete collapsed_graphs[layer];
+  }
+
+  // Make sure the resulting communities are called 0,...,r-1
+  // where r is the number of communities.
+  q = 0.0;
+  vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
+  // We only renumber the communities for the first graph,
+  // since the communities for the other graphs should just be equal
+  // to the membership of the first graph.
+  for (size_t layer = 0; layer < nb_layers; layer++)
+  {
+    partitions[layer]->renumber_communities(membership);
+    q += partitions[layer]->quality()*layer_weights[layer];
+  }
+  return total_improv;
+}
+
+double Optimiser::optimise_partition(vector<SemiSupervisedRBCVertexPartition*> partitions, vector<double> layer_weights)
+{
+  #ifdef DEBUG
+    cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)" << endl;
+  #endif
+  // slightly modified in the graph collapse step for preserving immutability.
+  cout << "Running SemiSupervised specific optimization."
+
+  double q = 0.0;
+
+  // Number of multiplex layers
+  size_t nb_layers = partitions.size();
+  if (nb_layers == 0)
+    throw Exception("No partitions provided.");
+
+  // Get graphs for all layers
+  vector<Graph*> graphs(nb_layers);
+  for (size_t layer = 0; layer < nb_layers; layer++)
+    graphs[layer] = partitions[layer]->get_graph();
+
+  // Number of nodes in the graphs. Should be the same across
+  // all graphs, so we only take the first one.
+  size_t n = graphs[0]->vcount();
+
+  // Make sure that all graphs contain the exact same number of nodes.
+  // We assume the index of each vertex in the graph points to the
+  // same node (but then in a different layer).
+  for (size_t layer = 0; layer < nb_layers; layer++)
+    if (graphs[layer]->vcount() != n)
+      throw Exception("Number of nodes are not equal for all graphs.");
+
+  // Initialize the vector of the collapsed graphs for all layers
+  vector<Graph*> collapsed_graphs(nb_layers);
+  vector<SemiSupervisedRBCVertexPartition*> collapsed_partitions(nb_layers);
+
+  // Declare the collapsed_graph variable which will contain the graph
+  // collapsed by its communities. We will use this variables at each
+  // further iteration, so we don't keep a collapsed graph at each pass.
+  for (size_t layer = 0; layer < nb_layers; layer++)
+  {
+    collapsed_graphs[layer] = graphs[layer];
+    collapsed_partitions[layer] = partitions[layer];
+  }
+
+  // This reflects the aggregate node, which to start with is simply equal to the graph.
+  vector<size_t> aggregate_node_per_individual_node = range(n);
+  int aggregate_further = true;
+  // As long as there remains improvement iterate
+  double total_improv = 0.0;
+  double improv = 0.0;
+  do
+  {
+
+    // Optimise partition for collapsed graph
+    #ifdef DEBUG
+      q = 0.0;
+      for (size_t layer = 0; layer < nb_layers; layer++)
+        q += partitions[layer]->quality()*layer_weights[layer];
+      cerr << "Quality before moving " <<  q << endl;
+    #endif
+
+    improv = this->move_nodes(collapsed_partitions, layer_weights);
+    total_improv += improv;
+
+    #ifdef DEBUG
+      cerr << "Found " << collapsed_partitions[0]->nb_communities() << " communities, improved " << improv << endl;
+      q = 0.0;
+      for (size_t layer = 0; layer < nb_layers; layer++)
+        q += partitions[layer]->quality()*layer_weights[layer];
+      cerr << "Quality after moving " <<  q << endl;
+    #endif // DEBUG
+
+    // Make sure improvement on coarser scale is reflected on the
+    // scale of the graph as a whole.
+    for (size_t layer = 0; layer < nb_layers; layer++)
+    {
+      if (collapsed_partitions[layer] != partitions[layer])
+      {
+        partitions[layer]->from_coarse_partition(collapsed_partitions[layer]);
+      }
+    }
+
+    #ifdef DEBUG
+      q = 0.0;
+      for (size_t layer = 0; layer < nb_layers; layer++)
+        q += partitions[layer]->quality()*layer_weights[layer];
+      cerr << "Quality on finer partition " << q << endl;
+    #endif // DEBUG
+
+    #ifdef DEBUG
+        cerr << "Number of communities: " << partitions[0]->nb_communities() << endl;
+    #endif
+
+    // Collapse graph (i.e. community graph)
+    vector<Graph*> new_collapsed_graphs(nb_layers);
+    vector<SemiSupervisedRBCVertexPartition*> new_collapsed_partitions(nb_layers);
+    for (size_t layer = 0; layer < nb_layers; layer++)
+    {
+      // for SemiSupervisedRBCVertexPartition we should renumber communities
+      // before collapsing so tracking mutable communities is possible
+      partitions[layer] -> renumber_communities();
+      vector<bool> mutable_comms = partitions[layer] -> collapse_mutables();
+      // if SemiSupervisedRBCVertexPartition, mark immutable comms
+      new_collapsed_graphs[layer] = collapsed_graphs[layer]->collapse_graph(collapsed_partitions[layer]);
+      // Create collapsed partition (i.e. default partition of each node in its own community).
+      new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer]);
+      
       #ifdef DEBUG
         cerr << "Layer " << layer << endl;
         cerr << "Old collapsed graph " << collapsed_graphs[layer] << ", vcount is " << collapsed_graphs[layer]->vcount() << endl;
@@ -369,7 +559,16 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
           comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
       }
-
+      else if (consider_comms == MUTABLE_NEIGH_COMMS) {
+        //*********** ALL NEIGHBORING COMMUNITIES FOR MUTABLE NODES ************
+        for (size_t layer = 0; layer < nb_layers; later++) {
+          // check mutability of community label for node v
+          if (partitions[layer] -> mutable(v)) {
+            vector<size_t> const& neigh_comm_layer = partitions[layer] -> get_neigh_comms(v, IGRAPH_ALL);
+            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+          }
+        }
+      }
       #ifdef DEBUG
         cerr << "Consider " << comms.size() << " communities for moving node " << v << "." << endl;
       #endif
