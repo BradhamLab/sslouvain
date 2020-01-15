@@ -17,6 +17,8 @@ class SemiSupervisedRBCVertexPartition : public RBConfigurationVertexPartition
                                      vector<size_t> const& membership,
                                      vector<bool> const& mutables);
     SemiSupervisedRBCVertexPartition(Graph* graph,
+                                     vector<size_t> const& membership);
+    SemiSupervisedRBCVertexPartition(Graph* graph,
                                      double resolution_parameter);
     SemiSupervisedRBCVertexPartition(Graph* graph);
     virtual ~SemiSupervisedRBCVertexPartition();
@@ -30,7 +32,7 @@ class SemiSupervisedRBCVertexPartition : public RBConfigurationVertexPartition
     void set_mutable(vector<bool> const& mutables);
     void set_mutable();
 
-    
+    vector<bool> SemiSupervisedRBCVertexPartition::collapse_mutables();
   protected:
     vector<bool> _mutables;
   private:

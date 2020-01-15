@@ -14,31 +14,40 @@
  *                   community number for each node. So membership[i] = c
  *                   implies that node i is in community c. If None, it is
  *                   initialised with each node in its own community.
+ * @param resolution: resolution parameter for community size
+ * @param mutables: A boolean vector for each node in the graph, dictating which
+ *                  nodes' labels are mutabl and which are immutable
  */
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    vector<size_t> const& membership,
                                                                    double resolution_parameter,
                                                                    vector<bool> const& mutables) :
   RBConfigurationVertexPartition(graph, membership, resolution_parameter) {
-    this -> set_mutability(membership);
+    this -> set_mutable(mutables);
   }
 
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    vector<size_t> const& membership,
                                                                    vector<bool> const& mutables) :
   RBConfigurationVertexPartition(graph, membership) {
-    this -> set_mutability(membership);
+    this -> set_mutable(mutables);
 }
+
+SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
+                                                                   vector<size_t> const& membership) :
+  RBConfigurationVertexPartition(graph, membership) {
+    this -> set_mutable();
+  }
 
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    double resolution_parameter) :
   RBConfigurationVertexPartition(graph, resolution_parameter) {
-    this -> set_mutability();
+    this -> set_mutable();
   }
 
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph) : 
   RBConfigurationVertexPartition(graph) {
-    this -> set_mutability();
+    this -> set_mutable();
   }
 
 
@@ -54,7 +63,7 @@ SemiSupervisedRBCVertexPartition*  SemiSupervisedRBCVertexPartition::create(Grap
 
 SemiSupervisedRBCVertexPartition* SemiSupervisedRBCVertexPartition::create(Graph* graph,
                                                                            vector<size_t> const& membership) {
-  return new SemiSupervisedRBCVertexPartition(graph, membership)
+  return new SemiSupervisedRBCVertexPartition(graph, membership);
 }
 
 /**
@@ -62,23 +71,23 @@ SemiSupervisedRBCVertexPartition* SemiSupervisedRBCVertexPartition::create(Graph
  * 
  * @param mutables: vector defining which nodes have mutable labels 
  */
-SemiSupervisedRBCVertexPartition::set_mutable(vector<size_t> const& mutables) {
+void SemiSupervisedRBCVertexPartition::set_mutable(vector<bool> const& mutables) {
   for (size_t i = 0; i < this -> graph -> vcount(); i++) {
     this -> _mutables[i] = mutables[i];
   }
 }
 
-SemiSupervisedRBCVertexPartition::set_mutable() {
+void SemiSupervisedRBCVertexPartition::set_mutable() {
   for (size_t i = 0; i < this -> graph -> vcount(); i++) {
     this -> _mutables[i] = true;
   }
 }
 
-double SemiSupervisedRBCVertexPartition::diff_move(size_t v, size_t new_comm) : 
-  RBConfigurationVertexPartition::diff_move(v, new_comm) {};
+// double SemiSupervisedRBCVertexPartition::diff_move(size_t v, size_t new_comm) : 
+//   RBConfigurationVertexPartition::diff_move(v, new_comm) {};
 
-virtual double SemiSupervisedRBCVertexPartition::quality(double resolution_parameter) :
-  RBConfigurationVertexPartition::quality(resolution_parameter) {};
+// virtual double SemiSupervisedRBCVertexPartition::quality(double resolution_parameter) :
+//   RBConfigurationVertexPartition::quality(resolution_parameter) {};
 
 vector<bool> SemiSupervisedRBCVertexPartition::collapse_mutables() {
   set<size_t> immutables;
