@@ -417,7 +417,7 @@ double Optimiser::optimise_partition(vector<SemiSupervisedRBCVertexPartition*> p
   // Make sure the resulting communities are called 0,...,r-1
   // where r is the number of communities.
   q = 0.0;
-  vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
+  vector<size_t> membership = SemiSupervisedRBCVertexPartition::renumber_communities(partitions);
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.

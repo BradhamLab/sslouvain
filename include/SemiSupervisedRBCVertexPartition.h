@@ -27,12 +27,18 @@ class SemiSupervisedRBCVertexPartition : public RBConfigurationVertexPartition
                                                      vector<size_t> const& membership);
     // perhaps unnecessary if we're not modifying behavior
     virtual double diff_move(size_t v, size_t new_comm);
+    virtual double quality();
     virtual double quality(double resolution_parameter);
 
     void set_mutable(vector<bool> const& mutables);
     void set_mutable();
 
-    vector<bool> SemiSupervisedRBCVertexPartition::collapse_mutables();
+    // renumber communities overwrite  -- for some reason 
+    void renumber_communities();
+    void renumber_communities(vector<size_t> const& new_membership);
+    vector<size_t> static renumber_communities(vector<SemiSupervisedRBCVertexPartition*> partitions);
+
+    vector<bool> collapse_mutables();
   protected:
     vector<bool> _mutables;
   private:
