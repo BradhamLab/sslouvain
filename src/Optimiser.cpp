@@ -247,7 +247,7 @@ double Optimiser::optimise_partition(vector<SemiSupervisedRBCVertexPartition*> p
     cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)" << endl;
   #endif
   // slightly modified in the graph collapse step for preserving immutability.
-  cout << "Running SemiSupervised specific optimization."
+  std::cout << "Running SemiSupervised specific optimization.";
 
   double q = 0.0;
 
@@ -559,11 +559,255 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
           comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
       }
+      #ifdef DEBUG
+        cerr << "Consider " << comms.size() << " communities for moving node " << v << "." << endl;
+      #endif
+
+      size_t max_comm = v_comm;
+      double max_improv = 0.0;
+      for (set<size_t>::iterator comm_it = comms.begin();
+           comm_it!= comms.end();
+           comm_it++)
+      {
+        size_t comm = *comm_it;
+        double possible_improv = 0.0;
+
+        // Consider the improvement of moving to a community for all layers
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          graph = graphs[layer];
+          partition = partitions[layer];
+          // Make sure to multiply it by the weight per layer
+          possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+        }
+        #ifdef DEBUG
+          cerr << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
+        #endif
+
+        if (possible_improv > max_improv && possible_improv > eps)
+        {
+          max_comm = comm;
+          max_improv = possible_improv;
+        }
+      }
+
+      // Check if we should move to an empty community
+      if (consider_empty_community)
+      {
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          graph = graphs[layer];
+          partition = partitions[layer];
+          if ( partition->get_community(v_comm).size() > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+          {
+            size_t comm = partition->get_empty_community();
+            #ifdef DEBUG
+              cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
+            #endif
+            if (comm == partition->nb_communities())
+            {
+              // If the empty community has just been added, we need to make sure
+              // that is has also been added to the other layers
+              for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+                partitions[layer_2]->add_empty_community();
+            }
+
+            double possible_improv = 0.0;
+            for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+            {
+              possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
+            }
+            #ifdef DEBUG
+              cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
+            #endif
+            if (possible_improv > max_improv)
+            {
+              max_improv = possible_improv;
+              max_comm = comm;
+            }
+          }
+        }
+      }
+
+      // If we actually plan to move the node
+      if (max_comm != v_comm)
+      {
+        // Keep track of improvement
+        improv += max_improv;
+
+        #ifdef DEBUG
+          // If we are debugging, calculate quality function
+          double q_improv = 0;
+        #endif
+
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          MutableVertexPartition* partition = partitions[layer];
+
+          #ifdef DEBUG
+            // If we are debugging, calculate quality function
+            double q1 = partition->quality();
+          #endif
+
+          // Actually move the node
+          partition->move_node(v, max_comm);
+          #ifdef DEBUG
+            // If we are debugging, calculate quality function
+            // and report difference
+            double q2 = partition->quality();
+            double q_delta = layer_weights[layer]*(q2 - q1);
+            q_improv += q_delta;
+            cerr << "Move node " << v
+            << " from " << v_comm << " to " << max_comm << " for layer " << layer
+            << " (diff_move=" << max_improv
+            << ", q2 - q1=" << q_delta << ")" << endl;
+          #endif
+        }
+        #ifdef DEBUG
+          if (fabs(q_improv - max_improv) > 1e-16)
+          {
+            cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl
+                 << " (diff_move=" << max_improv
+                 << ", q2 - q1=" << q_improv << ")" << endl;
+          }
+        #endif
+
+        // Keep track of number of moves
+        nb_moves += 1;
+      }
+    }
+    total_improv += improv;
+  }
+
+  partitions[0]->renumber_communities();
+  vector<size_t> const& membership = partitions[0]->membership();
+  for (size_t layer = 1; layer < nb_layers; layer++)
+  {
+    partitions[layer]->renumber_communities(membership);
+    #ifdef DEBUG
+      cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->nb_communities() << " communities." << endl;
+    #endif DEBUG
+  }
+  return total_improv;
+}
+
+// Semi-Supervised Implementations
+
+double Optimiser::move_nodes(SemiSupervisedRBCVertexPartition* partition)
+{
+  return this->move_nodes(partition, this->consider_comms);
+}
+
+double Optimiser::move_nodes(SemiSupervisedRBCVertexPartition* partition, int consider_comms)
+{
+  vector<SemiSupervisedRBCVertexPartition*> partitions(1);
+  partitions[0] = partition;
+  vector<double> layer_weights(1, 1.0);
+  return this->move_nodes(partitions, layer_weights, consider_comms, this->consider_empty_community);
+}
+
+double Optimiser::move_nodes(vector<SemiSupervisedRBCVertexPartition*> partitions, vector<double> layer_weights)
+{
+  return this->move_nodes(partitions, layer_weights, this->consider_comms, this->consider_empty_community);
+}
+
+double Optimiser::move_nodes(vector<SemiSupervisedRBCVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community)
+{
+  #ifdef DEBUG
+    cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
+  #endif
+  // Number of multiplex layers
+  size_t nb_layers = partitions.size();
+  if (nb_layers == 0)
+    return -1.0;
+  // Get graphs
+  vector<Graph*> graphs(nb_layers);
+  for (size_t layer = 0; layer < nb_layers; layer++)
+    graphs[layer] = partitions[layer]->get_graph();
+  // Number of nodes in the graph
+  size_t n = graphs[0]->vcount();
+
+  // Total improvement while moving nodes
+  double total_improv = 0.0;
+
+  for (size_t layer = 0; layer < nb_layers; layer++)
+    if (graphs[layer]->vcount() != n)
+      throw Exception("Number of nodes are not equal for all graphs.");
+  // Number of moved nodes during one loop
+  size_t nb_moves = 1;
+
+  // We use a random order, we shuffle this order.
+  vector<size_t> nodes = range(n);
+  shuffle(nodes, &rng);
+
+  // Initialize the degree vector
+  // If we want to debug the function, we will calculate some additional values.
+  // In particular, the following consistencies could be checked:
+  // (1) - The difference in the quality function after a move should match
+  //       the reported difference when calling diff_move.
+  // (2) - The quality function should be exactly the same value after
+  //       aggregating/collapsing the graph.
+
+  // As long as there remain changes
+  double eps = 1e-10;
+  double improv = 0.0;
+  while(nb_moves > 0)
+  {
+    improv = 0.0;
+    nb_moves = 0;
+    for (vector<size_t>::iterator v_it = nodes.begin();
+         v_it!= nodes.end();
+         v_it++)
+    {
+      size_t v = *v_it;
+
+      set<size_t> comms;
+      Graph* graph = NULL;
+      MutableVertexPartition* partition = NULL;
+      // What is the current community of the node (this should be the same for all layers)
+      size_t v_comm = partitions[0]->membership(v);
+
+      if (consider_comms == ALL_COMMS)
+      {
+        for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
+        {
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            if (partitions[layer]->get_community(comm).size() > 0)
+            {
+              comms.insert(comm);
+              break; // Break from for loop in layer
+            }
+          }
+
+        }
+      }
+      else if (consider_comms == ALL_NEIGH_COMMS)
+      {
+        /****************************ALL NEIGH COMMS*****************************/
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
+          comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+        }
+      }
+      else if (consider_comms == RAND_COMM)
+      {
+        /****************************RAND COMM***********************************/
+        comms.insert( partitions[0]->membership(graphs[0]->get_random_node(&rng)) );
+      }
+      else if (consider_comms == RAND_NEIGH_COMM)
+      {
+        /****************************RAND NEIGH COMM*****************************/
+        size_t rand_layer = get_random_int(0, nb_layers - 1, &rng);
+        if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
+          comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
+      }
       else if (consider_comms == MUTABLE_NEIGH_COMMS) {
         //*********** ALL NEIGHBORING COMMUNITIES FOR MUTABLE NODES ************
-        for (size_t layer = 0; layer < nb_layers; later++) {
+        for (size_t layer = 0; layer < nb_layers; layer++) {
           // check mutability of community label for node v
-          if (partitions[layer] -> mutable(v)) {
+          if (partitions[layer] -> mutables(v)) {
             vector<size_t> const& neigh_comm_layer = partitions[layer] -> get_neigh_comms(v, IGRAPH_ALL);
             comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
           }

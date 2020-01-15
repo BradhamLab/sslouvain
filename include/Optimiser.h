@@ -41,7 +41,12 @@ class Optimiser
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
-
+    
+    //SSRBC additions
+    double move_nodes(SemiSupervisedRBCVertexPartition* partition);
+    double move_nodes(SemiSupervisedRBCVertexPartition* partition, int consider_comms);
+    double move_nodes(vector<SemiSupervisedRBCVertexPartition*> partitions, vector<double> layer_weights);
+    double move_nodes(vector<SemiSupervisedRBCVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
     inline void set_rng_seed(size_t seed) { igraph_rng_seed(&rng, seed); };
 
     virtual ~Optimiser();
