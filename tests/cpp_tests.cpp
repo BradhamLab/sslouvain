@@ -14,6 +14,7 @@ int main(void)
     printf("Diameter of a random graph with average degree 5: %d\n",
             (int) diameter);
     Graph louvain_graph(&graph);
+    SemiSupervisedRBCVertexPartition test(&louvain_graph);
     igraph_destroy(&graph);
     return 0;
 }
