@@ -94,6 +94,14 @@ size_t MutableVertexPartition::nb_communities()
   return this->community.size();
 }
 
+// Semisupervised modifications
+// return same vector of mutables
+vector<bool> MutableVertexPartition::collapse_mutables() {
+  return this->_mutables;
+}
+// just do nothing
+void MutableVertexPartition::set_mutables(vector<bool> mutables) {}
+
 /****************************************************************************
   Initialise all the administration based on the membership vector.
 *****************************************************************************/

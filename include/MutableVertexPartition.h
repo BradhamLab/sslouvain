@@ -97,6 +97,10 @@ class MutableVertexPartition
     vector<size_t> const& get_neigh_comms(size_t v, igraph_neimode_t);
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
 
+    // SemiSupervised modifications
+    vector<bool> collapse_mutables();
+    void set_mutables(vector<bool> mutables);
+
     // By delegating the responsibility for deleting the graph to the partition,
     // we no longer have to worry about deleting this graph.
     int destructor_delete_graph;
@@ -106,7 +110,7 @@ class MutableVertexPartition
     void init_admin();
 
     vector<size_t> _membership; // Membership vector, i.e. \sigma_i = c means that node i is in community c
-
+    vector<bool> _mutables; // this is only used for SemiSupervisedVertex
     Graph* graph;
 
     // Keep track of each community (i.e. which community contains which nodes)
