@@ -607,12 +607,14 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
-    PyObject* py_mutable_nodes
+    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights",
+                             "node_sizes", "mutable_nodes",
+                             "resolution_parameter", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
                                      &py_obj_graph, &py_initial_membership,
