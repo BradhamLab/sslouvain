@@ -15,6 +15,8 @@ int main(void)
             (int) diameter);
     Graph louvain_graph(&graph);
     SemiSupervisedRBCVertexPartition test(&louvain_graph);
+    Optimiser opt = Optimiser();
+    opt.optimise_partition(&test);
     igraph_destroy(&graph);
     return 0;
 }
