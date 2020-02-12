@@ -100,7 +100,7 @@ vector<bool> MutableVertexPartition::collapse_mutables() {
   return this->_mutables;
 }
 // just do nothing
-void MutableVertexPartition::set_mutables(vector<bool> mutables) {}
+void MutableVertexPartition::set_mutable(vector<bool> mutables) {}
 
 /****************************************************************************
   Initialise all the administration based on the membership vector.

@@ -99,7 +99,7 @@ class MutableVertexPartition
 
     // SemiSupervised modifications
     vector<bool> collapse_mutables();
-    void set_mutables(vector<bool> mutables);
+    void set_mutable(vector<bool> mutables);
 
     // By delegating the responsibility for deleting the graph to the partition,
     // we no longer have to worry about deleting this graph.
