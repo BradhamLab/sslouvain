@@ -24,7 +24,7 @@
 ****************************************************************************/
 Optimiser::Optimiser()
 {
-  this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
+  this->consider_comms = Optimiser::MUTABLE_NEIGH_COMMS;
   this->consider_empty_community = true;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
