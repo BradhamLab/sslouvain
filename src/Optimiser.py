@@ -4,6 +4,7 @@ from collections import namedtuple
 from math import log, sqrt
 import sys
 
+# would need to change _c_louvain -> _c_sslouvain if desired
 # Check if working with Python 3
 PY3 = (sys.version > '3')
 

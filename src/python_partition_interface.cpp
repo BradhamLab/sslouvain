@@ -602,8 +602,9 @@ extern "C"
   }
 
 // SS implementation
-
-  PyObject* _new_SemiSupervisedRBCVertexPartion(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _new_SemiSupervisedRBCVertexPartition(PyObject *self,
+                                                  PyObject *args,
+                                                  PyObject *keywds)
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
@@ -634,7 +635,7 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
-        vector<bool> mutable_nodes
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;

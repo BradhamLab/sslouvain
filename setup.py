@@ -396,7 +396,7 @@ class BuildConfiguration(object):
                 buildcfg.print_build_info()
 
                 ext = first(extension for extension in self.extensions
-                        if extension.name == "louvain._c_louvain")
+                        if extension.name == "sslouvain._c_louvain")
                 buildcfg.configure(ext)
 
                 # Run the original build_ext command
@@ -597,7 +597,7 @@ class BuildConfiguration(object):
 buildcfg = BuildConfiguration();
 buildcfg.process_args_from_command_line();
 
-louvain_ext = Extension('louvain._c_louvain',
+louvain_ext = Extension('sslouvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
@@ -605,29 +605,34 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass.update(build_ext=buildcfg.build_ext)
 
 options =  dict(
-  name = 'louvain',
+  name = 'sslouvain',
   version=versioneer.get_version(),
-  description = 'Louvain is a general algorithm for methods of community detection in large networks.',
+  description = 'ssLouvain extends the popular Louvain package.',
   long_description=
     """
+ ssLouvain extend the popular Louvain package for community detection by adding
+ a semi-supervised option.
+
  Louvain is a general algorithm for methods of community detection in large networks.
 
- Please refer to the `documentation <http://louvain-igraph.readthedocs.io/en/latest>`_
+ Please refer to the for the original package `documentation <http://louvain-igraph.readthedocs.io/en/latest>`_
  for more details.
 
- The source code of this package is hosted at `GitHub <https://github.com/vtraag/louvain-igraph>`_.
- Issues and bug reports are welcome at https://github.com/vtraag/louvain-igraph/issues.
+ The source code of this package is hosted at `Github <https://github.com/dakota-hawkins/sslouvain>`_.
+ 
+ It is a fork from the louvain-igraph package, which can also be found on `GitHub <https://github.com/vtraag/louvain-igraph>`_.
+ Issues and bug reports are welcome at https://github.com/dakota-hawkins/sslouvain/issues.
     """,
   license = 'GPLv3+',
-  url = 'https://github.com/vtraag/louvain-igraph',
+  url = 'https://github.com/dakota-hawkins/sslouvain',
 
-  author = 'V.A. Traag',
-  author_email = 'vincent@traag.net',
+  author = 'V.A. Traag + Dakota Hawkins',
+  author_email = 'dyh0110@bu.edu',
   test_suite = 'tests',
 
-  provides = ['louvain'],
-  package_dir = {'louvain': 'src'},
-  packages = ['louvain'],
+  provides = ['sslouvain'],
+  package_dir = {'sslouvain': 'src'},
+  packages = ['sslouvain'],
   ext_modules = [louvain_ext],
   install_requires = ['python-igraph >= {0}.0'.format(VERSION)],
   classifiers=[

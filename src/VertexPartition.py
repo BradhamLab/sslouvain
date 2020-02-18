@@ -5,6 +5,7 @@ import sys
 # Check if working with Python 3
 PY3 = (sys.version > '3')
 
+# would need to chainge to _c_sslouvain if desired
 class MutableVertexPartition(_ig.VertexClustering):
   """ Contains a partition of graph, derives from :class:`ig.VertexClustering`.
 

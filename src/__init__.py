@@ -36,6 +36,7 @@ from .functions import ALL_COMMS
 from .functions import ALL_NEIGH_COMMS
 from .functions import RAND_COMM
 from .functions import RAND_NEIGH_COMM
+from .functions import MUTABLE_NEIGH_COMMS
 
 from .functions import find_partition
 from .functions import find_partition_multiplex
@@ -51,16 +52,17 @@ from .VertexPartition import SignificanceVertexPartition
 from .VertexPartition import RBERVertexPartition
 from .VertexPartition import RBConfigurationVertexPartition
 from .VertexPartition import CPMVertexPartition
+from .VertexPartition import SemiSupervisedRBCVertexPartition
 
 from pkg_resources import get_distribution, DistributionNotFound
 import os.path
 
 try:
-    _dist = get_distribution('louvain')
+    _dist = get_distribution('sslouvain')
     # Normalize case for Windows systems
     dist_loc = os.path.normcase(_dist.location)
     here = os.path.normcase(__file__)
-    if not here.startswith(os.path.join(dist_loc, 'louvain')):
+    if not here.startswith(os.path.join(dist_loc, 'sslouvain')):
         # not installed, but there is another version that *is*
         raise DistributionNotFound
 except DistributionNotFound:
