@@ -1,10 +1,5 @@
 #include "SemiSupervisedRBCVertexPartition.h"
 
-// TODO: If membership is passed, mark mutables and re-label -1 to incremented 
-// label 
-
-// TODO: implement CREATE methods
-
 /**
  * @brief 
  * Create new semi-supervised partition
@@ -16,14 +11,14 @@
  *                   initialised with each node in its own community.
  * @param resolution: resolution parameter for community size
  * @param mutables: A boolean vector for each node in the graph, dictating which
- *                  nodes' labels are mutabl and which are immutable
+ *                  nodes' labels are mutable and which are immutable
  */
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    vector<size_t> const& membership,
                                                                    double resolution_parameter,
                                                                    vector<bool> const& mutables) :
   RBConfigurationVertexPartition(graph, membership, resolution_parameter) {
-    this -> _mutables = vector(graph -> vcount(), true);
+    this -> _mutables = vector<bool>(graph -> vcount(), true);
     if (mutables.size() != graph -> vcount()) {
       throw Exception("Mutable vector has incorrect size.");
     }
@@ -34,26 +29,29 @@ SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    vector<size_t> const& membership,
                                                                    vector<bool> const& mutables) :
   RBConfigurationVertexPartition(graph, membership) {
-    this -> _mutables = vector(graph -> vcount(), true);
+    this -> _mutables = vector<bool>(graph -> vcount(), true);
+    if (mutables.size() != graph -> vcount()) {
+      throw Exception("Mutable vector has incorrect size.");
+    }
     this -> set_mutable(mutables);
 }
 
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    vector<size_t> const& membership) :
   RBConfigurationVertexPartition(graph, membership) {
-    this -> _mutables = vector(graph -> vcount(), true);
+    this -> _mutables = vector<bool>(graph -> vcount(), true);
   }
 
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph,
                                                                    double resolution_parameter) :
   RBConfigurationVertexPartition(graph, resolution_parameter) {
-    this -> _mutables = vector(graph -> vcount(), true); 
+    this -> _mutables = vector<bool>(graph -> vcount(), true); 
     this -> set_mutable();
   }
 
 SemiSupervisedRBCVertexPartition::SemiSupervisedRBCVertexPartition(Graph* graph) : 
   RBConfigurationVertexPartition(graph) {
-    this -> _mutables = vector(graph -> vcount(), true);
+    this -> _mutables = vector<bool>(graph -> vcount(), true);
     this -> set_mutable();
   }
 
