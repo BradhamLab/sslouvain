@@ -602,35 +602,31 @@ extern "C"
   }
 
 // SS implementation
-  PyObject* _new_SemiSupervisedRBCVertexPartition(PyObject *self,
-                                                  PyObject *args,
-                                                  PyObject *keywds)
+
+  PyObject* _new_SemiSupervisedRBCVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
-    PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
     static char* kwlist[] = {"graph", "initial_membership", "weights",
-                             "node_sizes", "mutable_nodes",
-                             "resolution_parameter", NULL};
+                             "mutable_nodes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOd", kwlist,
                                      &py_obj_graph, &py_initial_membership,
-                                     &py_weights, &py_node_sizes,
-                                     &py_mutable_nodes, &resolution_parameter))
+                                     &py_weights, &py_mutable_nodes,
+                                     &resolution_parameter))
         return NULL;
 
-    try
-    {
+    try {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, false);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
 
       SemiSupervisedRBCVertexPartition* partition = NULL;
 
-      // If necessary create an initial partition --> will always be nec.
+      // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
 
@@ -641,14 +637,10 @@ extern "C"
           cerr << "Reading initial membership." << endl;
         #endif
         size_t n = PyList_Size(py_initial_membership);
-        #ifdef DEBUG
-          cerr << "Size " << n << endl;
-        #endif
         initial_membership.resize(n);
         mutable_nodes.resize(n);
         for (size_t v = 0; v < n; v++) {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          // set initial membership
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item)) {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
             if (m >= 0)
