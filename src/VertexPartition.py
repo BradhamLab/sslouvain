@@ -1059,15 +1059,23 @@ class SemiSupervisedRBCVertexPartition(RBConfigurationVertexPartition):
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
 
+    mutable_nodes : list
+
     resolution_parameter : double
       Resolution parameter.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    else:
+      if mutable_nodes is not None:
+        raise ValueError("Setting mutable nodes only sensable with "
+                         "initial membership vector.")
 
-    if mutable_nodes is None:
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
+    else:
       print("No mutable nodes provided, treating all nodes as mutable")
-      mutable_nodes = [True] * len(initial_membership)
+      mutable_nodes = [True] * graph.vcount()
 
     super(SemiSupervisedRBCVertexPartition, self).__init__(graph,
                                                            initial_membership)
@@ -1082,5 +1090,5 @@ class SemiSupervisedRBCVertexPartition(RBConfigurationVertexPartition):
         weights = list(weights)
 
     self._partition = _c_louvain._new_SemiSupervisedRBCVertexPartition(pygraph_t,
-        initial_membership, weights, mutable_nodes, resolution_parameter)
+              initial_membership, weights, mutable_nodes, resolution_parameter)
     self._update_internal_membership()
