@@ -6,6 +6,14 @@ using std::cerr;
 using std::endl;
 #endif
 
+// ss modifications
+SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
+  vector<size_t> const& membership,
+  vector<bool> const& mutables) : MutableVertexPartition(graph,
+                                                         membership,
+                                                         mutables)
+{ }
+
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
       vector<size_t> const& membership) :
         MutableVertexPartition(graph,

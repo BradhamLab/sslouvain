@@ -7,6 +7,10 @@
 class SignificanceVertexPartition : public MutableVertexPartition
 {
   public:
+    // ss modifications
+    SignificanceVertexPartition(Graph* graph,
+                                vector<size_t> const& membership,
+                                vector<bool> const& mutables);
     SignificanceVertexPartition(Graph* graph, vector<size_t> const& membership);
     SignificanceVertexPartition(Graph* graph);
     virtual ~SignificanceVertexPartition();
