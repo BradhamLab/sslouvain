@@ -36,7 +36,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   """
 
-  # Init
+  # Init -- no `mutable_nodes` param b/c _partition is set by child classes
   def __init__(self, graph, initial_membership=None):
     """
     Parameters
@@ -51,6 +51,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
 
     super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
@@ -63,7 +65,7 @@ class MutableVertexPartition(_ig.VertexClustering):
                       vertex_attrs={'node_size': node_sizes})
     new_partition = cls(graph)
     new_partition._partition = partition
-    new_partition._update_internal_membership()
+    new_partition._update_internal_membership() # will we have to update internal mutable?
     return new_partition
 
   @classmethod
@@ -412,7 +414,7 @@ class ModularityVertexPartition(MutableVertexPartition):
          community structure in networks.  Physical Review E, 69(2), 026113.
          `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None, weights=None):
     """
     Parameters
     ----------
@@ -428,6 +430,8 @@ class ModularityVertexPartition(MutableVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
 
     super(ModularityVertexPartition, self).__init__(graph, initial_membership)
     pygraph_t = _get_py_capsule(graph)
@@ -440,7 +444,7 @@ class ModularityVertexPartition(MutableVertexPartition):
         weights = list(weights)
 
     self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t,
-        initial_membership, weights)
+        initial_membership, mutable_nodes, weights)
     self._update_internal_membership()
 
 class SurpriseVertexPartition(MutableVertexPartition):
@@ -480,7 +484,8 @@ class SurpriseVertexPartition(MutableVertexPartition):
           `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`_
   """
 
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None):
+  def __init__(self, graph, initial_membership=None,
+               mutable_nodes=None, weights=None, node_sizes=None):
     """
     Parameters
     ----------
@@ -501,6 +506,8 @@ class SurpriseVertexPartition(MutableVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
 
     super(SurpriseVertexPartition, self).__init__(graph, initial_membership)
 
@@ -514,7 +521,7 @@ class SurpriseVertexPartition(MutableVertexPartition):
         weights = list(weights)
 
     self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t,
-        initial_membership, weights)
+        initial_membership, mutable_nodes, weights)
     self._update_internal_membership()
 
 class SignificanceVertexPartition(MutableVertexPartition):
@@ -551,7 +558,8 @@ class SignificanceVertexPartition(MutableVertexPartition):
   .. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in community structure.
          Scientific Reports, 3, 2930. `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`_
   """
-  def __init__(self, graph, initial_membership=None, node_sizes=None):
+  def __init__(self, graph, initial_membership=None,
+               mutable_nodes=None, node_sizes=None):
     """
     Parameters
     ----------
@@ -569,12 +577,16 @@ class SignificanceVertexPartition(MutableVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
 
     super(SignificanceVertexPartition, self).__init__(graph, initial_membership)
 
     pygraph_t = _get_py_capsule(graph)
 
-    self._partition = _c_louvain._new_SignificanceVertexPartition(pygraph_t, initial_membership)
+    self._partition = _c_louvain._new_SignificanceVertexPartition(pygraph_t,
+                                                                  initial_membership,
+                                                                  mutable_nodes)
     self._update_internal_membership()
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
@@ -594,11 +606,14 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   stepwise decreasing monotonic function, e.g. as for
   :class:`CPMVertexPartition`).
   """
-  def __init__(self, graph, initial_membership=None):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None):
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
 
-    super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership)
+    super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership,
+                                                                   mutable_nodes)
 
   #########################################################3
   # resolution parameter
@@ -656,7 +671,8 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
          community detection.  Physical Review E, 74(1), 016110.
          `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None,
+               weights=None, node_sizes=None, resolution_parameter=1.0):
     """
     Parameters
     ----------
@@ -680,6 +696,8 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is None:
+      mutable_nodes = list(mutable_nodes)
 
     super(RBERVertexPartition, self).__init__(graph, initial_membership)
 
@@ -700,7 +718,7 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
         node_sizes = list(node_sizes)
 
     self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter)
+        initial_membership, mutable_nodes, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
@@ -738,7 +756,8 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
          `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
 
    """
-  def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None,
+               weights=None, resolution_parameter=1.0):
     """
     Parameters
     ----------
@@ -757,6 +776,8 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is None:
+      mutable_nodes = list(mutable_nodes)
 
     super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership)
 
@@ -770,7 +791,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
         weights = list(weights)
 
     self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
-        initial_membership, weights, resolution_parameter)
+        initial_membership, mutable_nodes, weights, resolution_parameter)
     self._update_internal_membership()
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
@@ -816,7 +837,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
          resolution-limit-free community detection.  Physical Review E, 84(1),
          016114.  `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None, weights=None, node_sizes=None, resolution_parameter=1.0):
     """
     Parameters
     ----------
@@ -840,6 +861,8 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
 
     super(CPMVertexPartition, self).__init__(graph, initial_membership)
 
@@ -860,7 +883,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         node_sizes = list(node_sizes)
 
     self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter)
+        initial_membership, mutable_nodes, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 
   def Bipartite(graph, resolution_parameter_01,
@@ -1088,7 +1111,11 @@ class SemiSupervisedRBCVertexPartition(RBConfigurationVertexPartition):
       else:
         # Make sure it is a list
         weights = list(weights)
-
+    print("graph: {}".format(pygraph_t))
+    print("membership: {}".format(initial_membership))
+    print("weights: {}".format(weights))
+    print("mutables: {}".format(mutable_nodes))
+    print("resolution: {}".format(resolution_parameter))
     self._partition = _c_louvain._new_SemiSupervisedRBCVertexPartition(pygraph_t,
               initial_membership, weights, mutable_nodes, resolution_parameter)
     self._update_internal_membership()
