@@ -7,6 +7,14 @@
 class RBERVertexPartition : public LinearResolutionParameterVertexPartition
 {
   public:
+    // ss modifications
+    RBERVertexPartition(Graph* graph,
+                        vector<size_t> const& membership,
+                        vector<bool> const& mutables,
+                        double resolution_parameter);
+    RBERVertexPartition(Graph* graph,
+                        vector<size_t> const& membership,
+                        vector<bool> const& mutables);
     RBERVertexPartition(Graph* graph,
           vector<size_t> const& membership, double resolution_parameter);
     RBERVertexPartition(Graph* graph,
