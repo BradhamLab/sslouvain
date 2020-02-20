@@ -6,10 +6,20 @@
 class ResolutionParameterVertexPartition : public MutableVertexPartition
 {
   public:
+    // ss modification
+    ResolutionParameterVertexPartition(Graph *graph,
+                                       vector<size_t> membership,
+                                       vector<bool> mutables,
+                                       double resolution_parameter);
     ResolutionParameterVertexPartition(Graph* graph,
-          vector<size_t> membership, double resolution_parameter);
+                                       vector<size_t> membership,
+                                       double resolution_parameter);
     ResolutionParameterVertexPartition(Graph* graph,
-          vector<size_t> membership);
+                                       vector<size_t> membership);
+    // ss modification
+    ResolutionParameterVertexPartition(Graph* graph,
+                                       vector<size_t> membership,
+                                       vector<bool> mutables);
     ResolutionParameterVertexPartition(Graph* graph, double resolution_parameter);
     ResolutionParameterVertexPartition(Graph* graph);
     virtual ~ResolutionParameterVertexPartition();
