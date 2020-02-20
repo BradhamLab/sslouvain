@@ -7,9 +7,14 @@ using std::endl;
 #endif
 
 ModularityVertexPartition::ModularityVertexPartition(Graph* graph,
-      vector<size_t> const& membership) :
-        MutableVertexPartition(graph,
-        membership)
+                                                     vector<size_t> const& membership) :
+        MutableVertexPartition(graph, membership)
+{ }
+
+ModularityVertexPartition::ModularityVertexPartition(Graph* graph,
+                                                     vector<size_t> const& membership,
+                                                     vector<bool> const& mutables) :
+  MutableVertexPartition(graph, membership, mutables)
 { }
 
 ModularityVertexPartition::ModularityVertexPartition(Graph* graph) :
