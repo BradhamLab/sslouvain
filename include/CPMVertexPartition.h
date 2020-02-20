@@ -6,6 +6,14 @@
 class CPMVertexPartition : public LinearResolutionParameterVertexPartition
 {
   public:
+    // ss modifications
+    CPMVertexPartition(Graph* graph,
+                       vector<size_t> membership,
+                       vector<bool> mutables,
+                       double resolution_paramter);
+    CPMVertexPartition(Graph* graph,
+                       vector<size_t> membership,
+                       vector<bool> mutables);
     CPMVertexPartition(Graph* graph,
           vector<size_t> membership, double resolution_parameter);
     CPMVertexPartition(Graph* graph,
