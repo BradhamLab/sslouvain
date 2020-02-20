@@ -14,6 +14,9 @@
                         community number for each node. So membership[i] = c
                         implies that node i is in community c. If None, it is
                         initialised with each node in its own community.
+    mutables=None    -- The mutable notes in this partition (i.e. which nodes
+                        are considered when moving nodes to different
+                        communities during community detection).
     weight_attr=None -- What edge attribute should be used as a weight for the
                         edges? If None, the weight defaults to 1.
     size_attr=None   -- What node attribute should be used for keeping track
@@ -47,7 +50,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
                                                vector<size_t> const& membership,
                                                vector<bool> const& mutables) :
   MutableVertexPartition(graph, membership) {
-    this -> _mutables = vector<bool>(graph -> vcount(), true);
+    this -> _mutables.resize(graph->vcount());
     if (mutables.size() != graph -> vcount()) {
       throw Exception("Mutable vector has incorrect size.");
     }
@@ -59,6 +62,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph)
   this->destructor_delete_graph = false;
   this->graph = graph;
   this->_membership = range(graph->vcount());
+  this->_mutables.resize(graph->vcount());
   this->init_admin();
 }
 
