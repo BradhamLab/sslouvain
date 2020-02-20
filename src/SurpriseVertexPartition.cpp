@@ -1,5 +1,13 @@
 #include "SurpriseVertexPartition.h"
 
+// ss modififications
+SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
+  vector<size_t> const& membership,
+  vector<bool> const& mutables) : MutableVertexPartition(graph,
+                                                         membership,
+                                                         mutables)
+{ }
+
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
       vector<size_t> const& membership) :
         MutableVertexPartition(graph,

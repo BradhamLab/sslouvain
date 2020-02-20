@@ -9,6 +9,10 @@
 class SurpriseVertexPartition: public MutableVertexPartition
 {
   public:
+    // SS modifications
+    SurpriseVertexPartition(Graph* graph,
+                            vector<size_t> const& membership,
+                            vector<bool> const& mutables);
     SurpriseVertexPartition(Graph* graph, vector<size_t> const& membership);
     SurpriseVertexPartition(Graph* graph, SurpriseVertexPartition* partition);
     SurpriseVertexPartition(Graph* graph);
