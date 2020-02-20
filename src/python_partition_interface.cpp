@@ -171,12 +171,15 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
+    static char* kwlist[] = {"graph", "initial_membership",
+                             "mutable_nodes", "weights", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist,
+                                     &py_obj_graph, &py_initial_membership,
+                                     &py_mutable_nodes, &py_weights))
         return NULL;
 
     try
@@ -191,14 +194,15 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;
         #endif
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
+        mutable_nodes.resize(n)
+        for (size_t v = 0; v < n; v++) {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
@@ -213,9 +217,21 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
+          if (py_mutable_nodes != NULL && py_mutable_nodes != Py_None) {
+            PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
+            if (PyBool_Check(py_mut)) {
+              mutable_nodes[v] = PyObject_IsTrue(py_mut);
+            } else {
+              PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
+              return NULL;
+            }
+          } else {
+            mutable_nodes[v] = true;
+          }
         }
 
-        partition = new ModularityVertexPartition(graph, initial_membership);
+        partition = new ModularityVertexPartition(graph, initial_membership,
+                                                  mutable_nodes);
       }
       else
         partition = new ModularityVertexPartition(graph);
@@ -243,11 +259,15 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_mutable_nodes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", 
+                             "mutable_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|O", kwlist,
-                                     &py_obj_graph, &py_initial_membership))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
+                                     &py_obj_graph,
+                                     &py_initial_membership,
+                                     &py_mutable_nodes))
         return NULL;
 
     try
@@ -262,14 +282,15 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;
         #endif
         size_t n = PyList_Size(py_initial_membership);
+        mutable_nodes.resize(n);
         initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
+        for (size_t v = 0; v < n; v++) {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
@@ -284,9 +305,21 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
+          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+            PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
+            if (PyBool_Check(py_mut)) {
+              mutable_nodes[v] = PyObject_IsTrue(py_mut);
+            } else {
+              PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
+              return NULL;
+            }
+          } else {
+            mutable_nodes[v] = true;
+          }
         }
 
-        partition = new SignificanceVertexPartition(graph, initial_membership);
+        partition = new SignificanceVertexPartition(graph, initial_membership,
+                                                    mutable_nodes);
       }
       else
         partition = new SignificanceVertexPartition(graph);
@@ -313,12 +346,17 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
+    static char* kwlist[] = {"graph", "initial_membership",
+                             "mutable_nodes", "weights", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist,
+                                     &py_obj_graph,
+                                     &py_initial_membership,
+                                     &py_mutable_nodes,
+                                     &py_weights))
         return NULL;
 
     try
@@ -333,12 +371,14 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;
         #endif
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
+        mutable_nodes.resize(n);
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
@@ -355,9 +395,21 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
+          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+            PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
+            if (PyBool_Check(py_mut)) {
+              mutable_nodes[v] = PyObject_IsTrue(py_mut);
+            } else {
+              PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
+              return NULL;
+            }
+          } else {
+            mutable_nodes[v] = true;
+          }
         }
 
-        partition = new SurpriseVertexPartition(graph, initial_membership);
+        partition = new SurpriseVertexPartition(graph, initial_membership,
+                                                mutable_nodes);
       }
       else
         partition = new SurpriseVertexPartition(graph);
@@ -384,14 +436,18 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership",
+                             "mutable_nodes", "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOOd", kwlist,
+                                     &py_obj_graph, &py_initial_membership,
+                                     &py_mutable_nodes,
+                                     &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
     try
@@ -406,6 +462,7 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;
@@ -415,6 +472,7 @@ extern "C"
           cerr << "Size " << n << endl;
         #endif
         initial_membership.resize(n);
+        mutable_nodes.resize(n);
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
@@ -431,9 +489,21 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
+          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+            PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
+            if (PyBool_Check(py_mut)) {
+              mutable_nodes[v] = PyObject_IsTrue(py_mut);
+            } else {
+              PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
+              return NULL;
+            }
+          } else {
+            mutable_nodes[v] = true;
+          }
         }
 
-        partition = new CPMVertexPartition(graph, initial_membership, resolution_parameter);
+        partition = new CPMVertexPartition(graph, initial_membership, 
+                                           mutable_nodes, resolution_parameter);
       }
       else
         partition = new CPMVertexPartition(graph, resolution_parameter);
@@ -460,14 +530,19 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", 
+                             "mutable_nodes",
+                             "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOOd", kwlist,
+                                     &py_obj_graph, &py_initial_membership,
+                                     &py_mutable_nodes,
+                                     &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
     try
@@ -482,12 +557,14 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;
         #endif
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
+        mutable_nodes.resize(n);
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
@@ -504,9 +581,22 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
+          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+            PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
+            if (PyBool_Check(py_mut)) {
+              mutable_nodes[v] = PyObject_IsTrue(py_mut);
+            } else {
+              PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
+              return NULL;
+            }
+          } else {
+            mutable_nodes[v] = true;
+          }
         }
 
-        partition = new RBERVertexPartition(graph, initial_membership, resolution_parameter);
+        partition = new RBERVertexPartition(graph, initial_membership,
+                                            mutable_nodes,
+                                            resolution_parameter);
       }
       else
         partition = new RBERVertexPartition(graph, resolution_parameter);
@@ -533,13 +623,17 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_mutable_Nodes = NULL;
     PyObject* py_weights = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership",
+                             "mutable_nodes", "weights", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+                                     &py_obj_graph, &py_initial_membership,
+                                     &py_mutable_nodes,
+                                     &py_weights, &resolution_parameter))
         return NULL;
 
     try
@@ -560,6 +654,7 @@ extern "C"
         #endif
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
+        mutable_nodes.resize(n);
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
@@ -575,6 +670,17 @@ extern "C"
           {
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
+          }
+          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+            PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
+            if (PyBool_Check(py_mut)) {
+              mutable_nodes[v] = PyObject_IsTrue(py_mut);
+            } else {
+              PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
+              return NULL;
+            }
+          } else {
+            mutable_nodes[v] = true;
           }
         }
 
