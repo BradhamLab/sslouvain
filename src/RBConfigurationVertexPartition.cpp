@@ -1,5 +1,22 @@
 #include "RBConfigurationVertexPartition.h"
 
+// ss modificaitons 
+RBConfigurationVertexPartition::RBConfigurationVertexPartition(
+  Graph* graph,
+  vector<size_t> const& membership,
+  vector<bool> const& mutables,
+  double resolution_parameter) : LinearResolutionParameterVertexPartition(
+    graph, membership, mutables, resolution_parameter)
+{ }
+
+RBConfigurationVertexPartition::RBConfigurationVertexPartition(
+  Graph* graph,
+  vector<size_t> const& membership,
+  vector<bool> const& mutables) : LinearResolutionParameterVertexPartition(
+    graph, membership, mutables)
+{ }
+
+
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
       vector<size_t> const& membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,

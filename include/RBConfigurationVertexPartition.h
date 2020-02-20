@@ -6,6 +6,14 @@
 class RBConfigurationVertexPartition : public LinearResolutionParameterVertexPartition
 {
   public:
+    // ss modification
+    RBConfigurationVertexPartition(Graph* graph,
+                                   vector<size_t> const& membership,
+                                   vector<bool> const& mutables,
+                                   double resolution_parameter);
+    RBConfigurationVertexPartition(Graph* graph,
+                                   vector<size_t> const& membership,
+                                   vector<bool> const& mutables);
     RBConfigurationVertexPartition(Graph* graph,
           vector<size_t> const& membership, double resolution_parameter);
     RBConfigurationVertexPartition(Graph* graph,
