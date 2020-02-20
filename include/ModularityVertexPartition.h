@@ -7,7 +7,10 @@ class ModularityVertexPartition : public MutableVertexPartition
 {
   public:
     ModularityVertexPartition(Graph* graph,
-        vector<size_t> const& membership);
+                              vector<size_t> const& membership);
+    ModularityVertexPartition(Graph* graph,
+                              vector<size_t> const& membership,
+                              vector<bool> const& mutables);
     ModularityVertexPartition(Graph* graph);
     virtual ~ModularityVertexPartition();
     virtual ModularityVertexPartition* create(Graph* graph);
