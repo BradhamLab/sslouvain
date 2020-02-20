@@ -614,7 +614,7 @@ extern "C"
     static char* kwlist[] = {"graph", "initial_membership", "weights",
                              "mutable_nodes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOd", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
                                      &py_obj_graph, &py_initial_membership,
                                      &py_weights, &py_mutable_nodes,
                                      &resolution_parameter))
@@ -627,8 +627,7 @@ extern "C"
       SemiSupervisedRBCVertexPartition* partition = NULL;
 
       // If necessary create an initial partition
-      if (py_initial_membership != NULL && py_initial_membership != Py_None)
-      {
+      if (py_initial_membership != NULL && py_initial_membership != Py_None) {
 
         vector<size_t> initial_membership;
         vector<bool> mutable_nodes;
