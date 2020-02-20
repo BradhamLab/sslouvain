@@ -38,7 +38,20 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
     throw Exception("Membership vector has incorrect size.");
   }
   this->_membership = membership;
+  this->_mutables = vector<bool>(graph->vcount(), true);
+  this->set_mutable(_mutables);
   this->init_admin();
+}
+
+MutableVertexPartition::MutableVertexPartition(Graph* graph,
+                                               vector<size_t> const& membership,
+                                               vector<bool> const& mutables) :
+  MutableVertexPartition(graph, membership) {
+    this -> _mutables = vector<bool>(graph -> vcount(), true);
+    if (mutables.size() != graph -> vcount()) {
+      throw Exception("Mutable vector has incorrect size.");
+    }
+    this -> set_mutable(mutables);
 }
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph)
@@ -95,12 +108,41 @@ size_t MutableVertexPartition::nb_communities()
 }
 
 // Semisupervised modifications
-// return same vector of mutables
+/**
+ * @brief Collapse mutable nodes down to mutable communities.
+ * 
+ * Communities are considered mutable if all nodes in the community are mutable.
+ * It is assumed communities are ordered 1, 2, ... , N - 1, N, where N is the
+ * number of communities.
+ * 
+ * @return boolean vector of length N where index i is true if community
+ * remains mutable.
+ * */
 vector<bool> MutableVertexPartition::collapse_mutables() {
-  return this->_mutables;
+  set<size_t> immutables;
+  vector<bool> collapsed(this -> nb_communities(), true);
+  for (size_t i = 0; i < this -> graph -> vcount(); i++) {
+    if (! (this -> mutables(i))) {
+      immutables.insert(this -> membership(i));
+    }
+  }
+  for (size_t c = 0; c < this -> nb_communities(); c++) {
+    if (immutables.find(c) != immutables.end()) {
+      collapsed[c] = false;
+    }
+  }
+  return(collapsed);
 }
-// just do nothing
-void MutableVertexPartition::set_mutable(vector<bool> mutables) {}
+/**
+ * @brief Set vertex mutability for each vertex in the graph
+ * 
+ * @param mutables: vector defining which nodes have mutable labels 
+ */
+void MutableVertexPartition::set_mutable(vector<bool> const& mutables) {
+  for (size_t i = 0; i < this -> graph -> vcount(); i++) {
+    this -> _mutables[i] = mutables[i];
+  }
+}
 
 /****************************************************************************
   Initialise all the administration based on the membership vector.

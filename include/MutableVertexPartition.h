@@ -45,8 +45,9 @@ order to optimise the quality function.
 class MutableVertexPartition
 {
   public:
-    MutableVertexPartition(Graph* graph,
-        vector<size_t> const& membership);
+    MutableVertexPartition(Graph* graph, vector<size_t> const& membership);
+    MutableVertexPartition(Graph* graph, vector<size_t> const& membership,
+                           vector<bool> const& mutables);
     MutableVertexPartition(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph, vector<size_t> const& membership);
@@ -54,7 +55,10 @@ class MutableVertexPartition
     virtual ~MutableVertexPartition();
 
     inline size_t membership(size_t v) { return this->_membership[v]; };
-    inline vector<size_t> const& membership() const { return this->_membership; };
+    inline vector<size_t> const& membership() const { return this->_membership;};
+    // Semi Supervised methods
+    inline bool mutables(size_t v) { return this -> _mutables[v];};
+    inline vector<bool> const& mutables() const {return this -> _mutables;};
 
     size_t csize(size_t comm);
     set<size_t> const& get_community(size_t comm);
@@ -100,6 +104,7 @@ class MutableVertexPartition
     // SemiSupervised modifications
     vector<bool> collapse_mutables();
     void set_mutable(vector<bool> mutables);
+    // void set_mutable();
 
     // By delegating the responsibility for deleting the graph to the partition,
     // we no longer have to worry about deleting this graph.
