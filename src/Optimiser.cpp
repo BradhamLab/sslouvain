@@ -25,6 +25,7 @@
 Optimiser::Optimiser()
 {
   this->consider_comms = Optimiser::MUTABLE_NEIGH_COMMS;
+  // this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->consider_empty_community = true;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
@@ -375,6 +376,19 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         size_t rand_layer = get_random_int(0, nb_layers - 1, &rng);
         if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
           comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
+      }
+      /************************ Neighbor Comms if Mutable *********************/
+      else if (consider_comms == MUTABLE_NEIGH_COMMS) {
+        for (size_t layer = 0; layer < nb_layers; layer++) {
+          cerr << "node: " << v << ", mutable: " << partitions[layer] -> mutables(v) << endl;
+          // if mutable node, find neighboring communities
+          if (partitions[layer] -> mutables(v)) {
+            vector<size_t> const& neigh_comm_layer = partitions[layer]-> get_neigh_comms(v, IGRAPH_ALL);
+            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+          }
+        }
+      } else {
+        throw Exception("Unrecognized community consideration.");
       }
       #ifdef DEBUG
         cerr << "Consider " << comms.size() << " communities for moving node " << v << "." << endl;
