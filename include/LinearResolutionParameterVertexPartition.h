@@ -7,10 +7,21 @@ class LinearResolutionParameterVertexPartition : public ResolutionParameterVerte
 {
   public:
     LinearResolutionParameterVertexPartition(Graph* graph,
-          vector<size_t> membership, double resolution_parameter);
+                                             vector<size_t> membership,
+                                             double resolution_parameter);
+    // ss modification
     LinearResolutionParameterVertexPartition(Graph* graph,
-          vector<size_t> membership);
-    LinearResolutionParameterVertexPartition(Graph* graph, double resolution_parameter);
+                                             vector<size_t> membership,
+                                             vector<bool> mutables,
+                                             double resolution_parameter);
+    LinearResolutionParameterVertexPartition(Graph* graph,
+                                             vector<size_t> membership);
+    // ss modification
+    LinearResolutionParameterVertexPartition(Graph* graph,
+                                             vector<size_t> membership,
+                                             vector<bool> mutables);
+    LinearResolutionParameterVertexPartition(Graph* graph,
+                                             double resolution_parameter);
     LinearResolutionParameterVertexPartition(Graph* graph);
     virtual ~LinearResolutionParameterVertexPartition();
 
