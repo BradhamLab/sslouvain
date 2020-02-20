@@ -173,7 +173,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
         cerr << "New collapsed graph " << new_collapsed_graphs[layer] << ", vcount is " << new_collapsed_graphs[layer]->vcount() << endl;
       #endif
     }
-
+    
     aggregate_further = (new_collapsed_graphs[0]->vcount() < collapsed_graphs[0]->vcount()) &&
                         (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->nb_communities());
 

@@ -56,6 +56,9 @@ class Optimiser(object):
     * :attr:`louvain.RAND_COMM`
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
+
+    * :attr:`louvain.MUTABLE_NEIGH_COMM`
+      Consider all neighboring communities for mutable vertices.
     """
     return _c_louvain._Optimiser_get_consider_comms(self._optimiser)
 
