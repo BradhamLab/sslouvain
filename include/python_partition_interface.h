@@ -25,8 +25,18 @@
   using std::endl;
 #endif
 
-MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter);
-MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter);
+MutableVertexPartition* create_partition(Graph* graph,
+                                         char* method,
+                                         vector<size_t>* initial_membership,
+                                         vector<bool>* mutables,
+                                         double resolution_parameter);
+MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph,
+                                                 char* method,
+                                                 PyObject* py_initial_membership,
+                                                 PyObject* py_mutable_nodes,
+                                                 PyObject* py_weights,
+                                                 PyObject* py_node_sizes,
+                                                 double resolution_parameter);
 
 Graph* create_graph_from_py(PyObject* py_obj_graph);
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights);
