@@ -201,7 +201,7 @@ extern "C"
         #endif
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
-        mutable_nodes.resize(n)
+        mutable_nodes.resize(n);
         for (size_t v = 0; v < n; v++) {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
@@ -305,7 +305,7 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
-          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+          if (py_mutable_nodes != NULL && py_mutable_nodes != Py_None) {
             PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
             if (PyBool_Check(py_mut)) {
               mutable_nodes[v] = PyObject_IsTrue(py_mut);
@@ -395,7 +395,7 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
-          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+          if (py_mutable_nodes != NULL && py_mutable_nodes != Py_None) {
             PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
             if (PyBool_Check(py_mut)) {
               mutable_nodes[v] = PyObject_IsTrue(py_mut);
@@ -489,7 +489,7 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
-          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+          if (py_mutable_nodes != NULL && py_mutable_nodes != Py_None) {
             PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
             if (PyBool_Check(py_mut)) {
               mutable_nodes[v] = PyObject_IsTrue(py_mut);
@@ -581,7 +581,7 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
-          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+          if (py_mutable_nodes != NULL && py_mutable_nodes != Py_None) {
             PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
             if (PyBool_Check(py_mut)) {
               mutable_nodes[v] = PyObject_IsTrue(py_mut);
@@ -623,7 +623,7 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
-    PyObject* py_mutable_Nodes = NULL;
+    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
     double resolution_parameter = 1.0;
 
@@ -648,6 +648,7 @@ extern "C"
       {
 
         vector<size_t> initial_membership;
+        vector<bool> mutable_nodes;
 
         #ifdef DEBUG
           cerr << "Reading initial membership." << endl;
@@ -671,7 +672,7 @@ extern "C"
             PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
             return NULL;
           }
-          if (py_mutable_nodes != NULL py_mutable_nodes != Py_None) {
+          if (py_mutable_nodes != NULL && py_mutable_nodes != Py_None) {
             PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
             if (PyBool_Check(py_mut)) {
               mutable_nodes[v] = PyObject_IsTrue(py_mut);
