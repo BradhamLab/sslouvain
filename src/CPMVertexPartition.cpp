@@ -1,5 +1,25 @@
 #include "CPMVertexPartition.h"
 
+// ss modifications
+
+CPMVertexPartition::CPMVertexPartition(Graph* graph,
+                                       vector<size_t> membership,
+                                       vector<bool> mutables,
+                                       double resolution_parameter) :
+  LinearResolutionParameterVertexPartition(graph,
+                                           membership,
+                                           mutables,
+                                           resolution_parameter)
+{ }
+
+CPMVertexPartition::CPMVertexPartition(Graph* graph,
+                                       vector<size_t> membership,
+                                       vector<bool> mutables) :
+  LinearResolutionParameterVertexPartition(graph,
+                                           membership,
+                                           mutables)
+{ }
+
 CPMVertexPartition::CPMVertexPartition(Graph* graph,
       vector<size_t> membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
