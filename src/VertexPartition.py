@@ -51,8 +51,6 @@ class MutableVertexPartition(_ig.VertexClustering):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
-    if mutable_nodes is not None:
-      mutable_nodes = list(mutable_nodes)
 
     super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
@@ -837,7 +835,8 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
          resolution-limit-free community detection.  Physical Review E, 84(1),
          016114.  `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
    """
-  def __init__(self, graph, initial_membership=None, mutable_nodes=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None,
+               weights=None, node_sizes=None, resolution_parameter=1.0):
     """
     Parameters
     ----------
