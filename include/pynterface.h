@@ -14,7 +14,6 @@
 #include "RBConfigurationVertexPartition.h"
 #include "RBERVertexPartition.h"
 #include "CPMVertexPartition.h"
-#include "SemiSupervisedRBCVertexPartition.h"
 #include "Optimiser.h"
 
 #include "python_partition_interface.h"
@@ -34,9 +33,12 @@ extern "C"
       {"_new_SurpriseVertexPartition",                              (PyCFunction)_new_SurpriseVertexPartition,                              METH_VARARGS | METH_KEYWORDS, ""},
       {"_new_CPMVertexPartition",                                   (PyCFunction)_new_CPMVertexPartition,                                   METH_VARARGS | METH_KEYWORDS, ""},
       {"_new_RBERVertexPartition",                                  (PyCFunction)_new_RBERVertexPartition,                                  METH_VARARGS | METH_KEYWORDS, ""},
-      {"_new_RBConfigurationVertexPartition",                       (PyCFunction)_new_RBConfigurationVertexPartition,                      METH_VARARGS | METH_KEYWORDS, ""},
-      {"_new_SemiSupervisedRBCVertexPartition",                     (PyCFunction)_new_SemiSupervisedRBCVertexPartition,                      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_RBConfigurationVertexPartition",                       (PyCFunction)_new_RBConfigurationVertexPartition,                       METH_VARARGS | METH_KEYWORDS, ""},
 
+      // ss modifications
+      {"_MutableVertexPartition_set_mutables",                      (PyCFunction)_MutableVertexPartition_set_mutables,                      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_get_mutables",                      (PyCFunction)_MutableVertexPartition_get_mutables,                      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_collapse_mutables",                 (PyCFunction)_MutableVertexPartition_collapse_mutables,                 METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_MutableVertexPartition_diff_move",                         (PyCFunction)_MutableVertexPartition_diff_move,                         METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_move_node",                         (PyCFunction)_MutableVertexPartition_move_node,                         METH_VARARGS | METH_KEYWORDS, ""},

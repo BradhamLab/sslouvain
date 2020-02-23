@@ -2,7 +2,6 @@
 #define OPTIMISER_H
 #include "GraphHelper.h"
 #include "MutableVertexPartition.h"
-#include "SemiSupervisedRBCVertexPartition.h"
 #include <set>
 #include <map>
 
@@ -34,8 +33,6 @@ class Optimiser
     // Optionally we can loop over all possible communities instead of only the neighbours. In the case of negative
     // layer weights this may be necessary.
     double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
-    double optimise_partition(vector<SemiSupervisedRBCVertexPartition*> partitions,
-                              vector<double> layer_weights);
 
     double move_nodes(MutableVertexPartition* partition);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
