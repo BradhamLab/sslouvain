@@ -15,7 +15,6 @@
 #include "RBERVertexPartition.h"
 #include "CPMVertexPartition.h"
 #include "Optimiser.h"
-#include "SemiSupervisedRBCVertexPartition.h"
 
 #include <sstream>
 
@@ -59,8 +58,6 @@ extern "C"
   PyObject* _new_CPMVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_RBERVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_RBConfigurationVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _new_SemiSupervisedRBCVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
-
 
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_move_node(PyObject *self, PyObject *args, PyObject *keywds);
@@ -69,6 +66,11 @@ extern "C"
   PyObject* _MutableVertexPartition_get_py_igraph(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_from_coarse_partition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_renumber_communities(PyObject *self, PyObject *args, PyObject *keywds);
+
+  // ss modification
+  PyObject* _MutableVertexPartition_collapse_mutables(PyObject *self, PyObject *args, PyObject *keywds); 
+  PyObject* _MutableVertexPartition_set_mutables(PyObject *self, PyObject *args, PyObject *keywds); 
+  PyObject* _MutableVertexPartition_get_mutables(PyObject *self, PyObject *args, PyObject *keywds); 
 
   PyObject* _MutableVertexPartition_quality(PyObject *self, PyObject *args, PyObject *keywds);
 
