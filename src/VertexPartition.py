@@ -53,9 +53,6 @@ class MutableVertexPartition(_ig.VertexClustering):
       initial_membership = list(initial_membership)
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
-    else:
-      mutable_nodes = [True] * graph.vcount()
-    self.mutables = mutable_nodes
 
     super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
@@ -108,7 +105,7 @@ class MutableVertexPartition(_ig.VertexClustering):
         self._len = 0
 
   def _update_internal_mutables(self):
-    self._mutables = _c_louvain._MutableVertexPartition_get_mutables(self._partition)
+    self.mutables = _c_louvain._MutableVertexPartition_get_mutables(self._partition)
 
 
   def set_membership(self, membership):
