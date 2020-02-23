@@ -37,7 +37,7 @@ class MutableVertexPartition(_ig.VertexClustering):
   """
 
   # Init -- no `mutable_nodes` param b/c _partition is set by child classes
-  def __init__(self, graph, initial_membership=None):
+  def __init__(self, graph, initial_membership=None, mutable_nodes=None):
     """
     Parameters
     ----------
@@ -51,6 +51,11 @@ class MutableVertexPartition(_ig.VertexClustering):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
+    if mutable_nodes is not None:
+      mutable_nodes = list(mutable_nodes)
+    else:
+      mutable_nodes = [True] * graph.vcount()
+    self.mutables = mutable_nodes
 
     super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
@@ -266,6 +271,15 @@ class MutableVertexPartition(_ig.VertexClustering):
     _c_louvain._MutableVertexPartition_renumber_communities(self._partition)
     self._update_internal_membership()
 
+  def collapse_mutables(self):
+    """
+    Collapse mutable nodes to mutable communities.
+    
+    Communities are considered mutable if all their constituitive nodes are
+    mutable.
+    """
+    return _c_louvain._MutableVertexPartition_collapse_mutables(self.partition)
+
   def quality(self):
     """ The current quality of the partition. """
     return _c_louvain._MutableVertexPartition_quality(self._partition)
@@ -431,7 +445,9 @@ class ModularityVertexPartition(MutableVertexPartition):
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
-    super(ModularityVertexPartition, self).__init__(graph, initial_membership)
+    super(ModularityVertexPartition, self).__init__(graph,
+                                                    initial_membership,
+                                                    mutable_nodes)
     pygraph_t = _get_py_capsule(graph)
 
     if weights is not None:
@@ -507,7 +523,8 @@ class SurpriseVertexPartition(MutableVertexPartition):
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
-    super(SurpriseVertexPartition, self).__init__(graph, initial_membership)
+    super(SurpriseVertexPartition, self).__init__(graph, initial_membership,
+                                                  mutable_nodes)
 
     pygraph_t = _get_py_capsule(graph)
 
@@ -694,10 +711,12 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
-    if mutable_nodes is None:
+    if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
-    super(RBERVertexPartition, self).__init__(graph, initial_membership)
+    super(RBERVertexPartition, self).__init__(graph,
+                                              initial_membership,
+                                              mutable_nodes)
 
     pygraph_t = _get_py_capsule(graph)
 
@@ -774,10 +793,12 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
-    if mutable_nodes is None:
+    if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
-    super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership)
+    super(RBConfigurationVertexPartition, self).__init__(graph,
+                                                         initial_membership,
+                                                         mutable_nodes)
 
     pygraph_t = _get_py_capsule(graph)
 
@@ -863,7 +884,9 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
-    super(CPMVertexPartition, self).__init__(graph, initial_membership)
+    super(CPMVertexPartition, self).__init__(graph,
+                                             initial_membership,
+                                             mutable_nodes)
 
     pygraph_t = _get_py_capsule(graph)
 
@@ -1014,9 +1037,9 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
       node_sizes = [1]*graph.vcount()
 
     partition_01 = CPMVertexPartition(graph,
-                     node_sizes=node_sizes,
-                     resolution_parameter=resolution_parameter_01,
-                     **kwargs)
+                                      node_sizes=node_sizes,
+                                      resolution_parameter=resolution_parameter_01,
+                                      **kwargs)
     H_0 = graph.subgraph_edges([], delete_vertices=False)
     partition_0 = CPMVertexPartition(H_0, weights=None,
                      node_sizes=[s if t == 0 else 0
@@ -1030,91 +1053,3 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_1,
                      **kwargs)
     return partition_01, partition_0, partition_1
-
-class SemiSupervisedRBCVertexPartition(RBConfigurationVertexPartition):
-  """Extends the RBC Vertex for a semi-supervised implementation.
-
-  This quality function uses a linear resolution parameter.
-
-  Notes
-  -----
-  The quality function is
-
-  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
-
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
-  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
-  the community of node :math:`i`, :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if
-  :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally :math:`\\gamma`
-  is a resolution parameter.
-
-  This can alternatively be formulated as a sum over communities:
-
-  .. math:: Q = \\sum_{c} \\left(m_c - \\gamma\\frac{K_c^2}{4m} \\right)
-
-  where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
-  in community :math:`c`.
-
-  Note that this is the same as :class:`ModularityVertexPartition` for
-  :math:`\\gamma=1` and using the normalisation by :math:`2m`.
-
-  References
-  ----------
-  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
-         community detection.  Physical Review E, 74(1), 016110.
-         `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
-
-   """
-  def __init__(self, graph, initial_membership=None, weights=None,
-               mutable_nodes=None, resolution_parameter=1.0):
-    """
-    Parameters
-    ----------
-    graph : :class:`ig.Graph`
-      Graph to define the partition on.
-
-    initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a
-      singleton partition.
-
-    weights : list of double, or edge attribute
-      Weights of edges. Can be either an iterable or an edge attribute.
-
-    mutable_nodes : list
-
-    resolution_parameter : double
-      Resolution parameter.
-    """
-    if initial_membership is not None:
-      initial_membership = list(initial_membership)
-    else:
-      if mutable_nodes is not None:
-        raise ValueError("Setting mutable nodes only sensable with "
-                         "initial membership vector.")
-
-    if mutable_nodes is not None:
-      mutable_nodes = list(mutable_nodes)
-    else:
-      print("No mutable nodes provided, treating all nodes as mutable")
-      mutable_nodes = [True] * graph.vcount()
-
-    super(SemiSupervisedRBCVertexPartition, self).__init__(graph,
-                                                           initial_membership)
-
-    pygraph_t = _get_py_capsule(graph)
-
-    if weights is not None:
-      if isinstance(weights, str):
-        weights = graph.es[weights]
-      else:
-        # Make sure it is a list
-        weights = list(weights)
-    print("graph: {}".format(pygraph_t))
-    print("membership: {}".format(initial_membership))
-    print("weights: {}".format(weights))
-    print("mutables: {}".format(mutable_nodes))
-    print("resolution: {}".format(resolution_parameter))
-    self._partition = _c_louvain._new_SemiSupervisedRBCVertexPartition(pygraph_t,
-              initial_membership, weights, mutable_nodes, resolution_parameter)
-    self._update_internal_membership()
