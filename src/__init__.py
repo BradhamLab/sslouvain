@@ -52,7 +52,6 @@ from .VertexPartition import SignificanceVertexPartition
 from .VertexPartition import RBERVertexPartition
 from .VertexPartition import RBConfigurationVertexPartition
 from .VertexPartition import CPMVertexPartition
-from .VertexPartition import SemiSupervisedRBCVertexPartition
 
 from pkg_resources import get_distribution, DistributionNotFound
 import os.path
