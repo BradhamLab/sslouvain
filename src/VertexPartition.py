@@ -68,7 +68,8 @@ class MutableVertexPartition(_ig.VertexClustering):
                       vertex_attrs={'node_size': node_sizes})
     new_partition = cls(graph)
     new_partition._partition = partition
-    new_partition._update_internal_membership() # will we have to update internal mutable?
+    new_partition._update_internal_membership()
+    new_partition._update_internal_mutables() # will we have to update internal mutable?
     return new_partition
 
   @classmethod
@@ -106,10 +107,20 @@ class MutableVertexPartition(_ig.VertexClustering):
     else:
         self._len = 0
 
+  def _update_internal_mutables(self):
+    self._mutables = _c_louvain._MutableVertexPartition_get_mutables(self._partition)
+
+
   def set_membership(self, membership):
     """ Set membership. """
     _c_louvain._MutableVertexPartition_set_membership(self._partition, list(membership))
     self._update_internal_membership()
+
+  def set_mutables(self, mutable_nodes):
+    """Set mutable nodes"""
+    _c_louvain._MutableVertexPartition_set_mutables(self._partition,
+                                                    list(mutable_nodes))
+    self._update_internal_mutables()
 
   # Calculate improvement *if* we move this node
   def diff_move(self,v,new_comm):
@@ -278,7 +289,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Communities are considered mutable if all their constituitive nodes are
     mutable.
     """
-    return _c_louvain._MutableVertexPartition_collapse_mutables(self.partition)
+    return _c_louvain._MutableVertexPartition_collapse_mutables(self._partition)
 
   def quality(self):
     """ The current quality of the partition. """
@@ -460,6 +471,7 @@ class ModularityVertexPartition(MutableVertexPartition):
     self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights)
     self._update_internal_membership()
+    self._update_internal_mutables()
 
 class SurpriseVertexPartition(MutableVertexPartition):
   """ Implements (asymptotic) Surprise.
@@ -538,6 +550,7 @@ class SurpriseVertexPartition(MutableVertexPartition):
     self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights)
     self._update_internal_membership()
+    self._update_internal_mutables()
 
 class SignificanceVertexPartition(MutableVertexPartition):
   """ Implements Significance.
@@ -603,6 +616,7 @@ class SignificanceVertexPartition(MutableVertexPartition):
                                                                   initial_membership,
                                                                   mutable_nodes)
     self._update_internal_membership()
+    self._update_internal_mutables()
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """ Some quality functions have a linear resolution parameter, for which the
@@ -737,6 +751,7 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
     self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
+    self._update_internal_mutables()
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
@@ -812,6 +827,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights, resolution_parameter)
     self._update_internal_membership()
+    self._update_internal_mutables()
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements CPM.
@@ -907,6 +923,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
+    self._update_internal_mutables()
 
   def Bipartite(graph, resolution_parameter_01,
                 resolution_parameter_0 = 0, resolution_parameter_1 = 0,
