@@ -62,7 +62,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph)
   this->destructor_delete_graph = false;
   this->graph = graph;
   this->_membership = range(graph->vcount());
-  this->_mutables.resize(graph->vcount());
+  this->_mutables = vector<bool>(true, graph->vcount());
   this->init_admin();
 }
 
