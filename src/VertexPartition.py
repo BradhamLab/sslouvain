@@ -278,7 +278,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Communities are considered mutable if all their constituitive nodes are
     mutable.
     """
-    return _c_louvain._MutableVertexPartition_collapse_mutables(self.partition)
+    return _c_louvain._MutableVertexPartition_collapse_mutables(self._partition)
 
   def quality(self):
     """ The current quality of the partition. """
