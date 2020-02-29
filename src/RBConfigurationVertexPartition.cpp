@@ -1,4 +1,8 @@
 #include "RBConfigurationVertexPartition.h"
+#include <iostream>
+
+#define BOOST_STACKTRACE_USE_ADDR2LINE
+#include <boost/stacktrace.hpp>
 
 // ss modificaitons 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(
@@ -6,37 +10,51 @@ RBConfigurationVertexPartition::RBConfigurationVertexPartition(
   vector<size_t> const& membership,
   vector<bool> const& mutables,
   double resolution_parameter) : LinearResolutionParameterVertexPartition(
-    graph, membership, mutables, resolution_parameter)
-{ }
+    graph, membership, mutables, resolution_parameter) {
+      std::cout << "RBCVertex 1" << std::endl;
+      for (int i = 0; i < mutables.size(); i++) {
+        std::cout << mutables[i] << ", ";
+      }
+      std::cout << std::endl;
+  
+      // this -> set_mutable(mutables);
+      // for (int i = 0; i < this->mutables().size(); i++) {
+      //   std::cout << this -> mutables(i) << ", ";
+      // }
+      // std::cout << std::endl;
+}
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(
   Graph* graph,
   vector<size_t> const& membership,
   vector<bool> const& mutables) : LinearResolutionParameterVertexPartition(
     graph, membership, mutables)
-{ }
+{ std::cout << "RBCVertex 2" << std::endl;}
 
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
       vector<size_t> const& membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
         membership, resolution_parameter)
-{ }
+{ std::cout << "RBCVertex 3" << std::endl;}
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
       vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
-{ }
+{std::cout << "RBCVertex 4" << std::endl; }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
       double resolution_parameter) :
-        LinearResolutionParameterVertexPartition(graph, resolution_parameter)
-{ }
+        LinearResolutionParameterVertexPartition(graph, resolution_parameter) {
+  std::cout << "RBCVertex 5" << std::endl; 
+  std::cout << boost::stacktrace::stacktrace() << std::endl;
+
+}
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph) :
         LinearResolutionParameterVertexPartition(graph)
-{ }
+{ std::cout << "RBCVertex 6" << std::endl;}
 
 RBConfigurationVertexPartition::~RBConfigurationVertexPartition()
 { }

@@ -50,6 +50,7 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
+  std::cout << "this opt also called " << std::endl;
   return this->optimise_partition(partitions, layer_weights);
 }
 
@@ -68,7 +69,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   #endif
 
   double q = 0.0;
-
+  std::cout << "starting optimization\n";
+  
   // Number of multiplex layers
   size_t nb_layers = partitions.size();
   if (nb_layers == 0)
@@ -159,8 +161,17 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     {
       // for SemiSupervisedRBCVertexPartition we should renumber communities
       // before collapsing so tracking mutable communities is possible
+      std::cout << "Layer " << layer << " out of " << nb_layers << std:: endl;
+      vector<bool> current_mutables = partitions[layer] -> mutables();
+      std::cout << "Mutable size " << current_mutables.size() << std::endl;
+      for (int i = 0; i < partitions[layer] -> mutables().size(); i++) {
+        std::cout << partitions[layer] -> mutables(i) << ", ";
+      }
+      std::cout << std::endl;
       partitions[layer] -> renumber_communities();
+      std::cout << "Collapsing mutables.\n";
       vector<bool> collapsed_mutables = partitions[layer] -> collapse_mutables();
+      std::cout << "collapsed_size " << collapsed_mutables.size() << std::endl;
       // if SemiSupervisedRBCVertexPartition, mark immutable comms
       new_collapsed_graphs[layer] = collapsed_graphs[layer]->collapse_graph(collapsed_partitions[layer]);
       // Create collapsed partition (i.e. default partition of each node in its own community).

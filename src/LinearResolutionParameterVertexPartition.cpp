@@ -12,9 +12,9 @@ LinearResolutionParameterVertexPartition::LinearResolutionParameterVertexPartiti
   vector<size_t> membership,
   vector<bool> mutables,
   double resolution_parameter) : ResolutionParameterVertexPartition(graph,
-                                                                   membership,
-                                                                   mutables,
-                                                                   resolution_parameter)
+                                                                    membership,
+                                                                    mutables,
+                                                                    resolution_parameter)
 { }
 
 LinearResolutionParameterVertexPartition::LinearResolutionParameterVertexPartition(Graph* graph,

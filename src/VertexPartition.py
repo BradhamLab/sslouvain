@@ -56,7 +56,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     else:
       mutable_nodes = [True] * graph.vcount()
     self.mutables = mutable_nodes
-
+    print('Calling MutableVertex supers...')
+    print("Current nodes {}".format(mutable_nodes))
     super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
   @classmethod
@@ -626,7 +627,9 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
       initial_membership = list(initial_membership)
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
-
+    
+    print('Calling LinearRes supers...')
+    print("Current nodes {}".format(mutable_nodes))
     super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership,
                                                                    mutable_nodes)
 
@@ -796,6 +799,9 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
+
+    print('Calling RBC supers...')
+    print("Current nodes {}".format(mutable_nodes))
     super(RBConfigurationVertexPartition, self).__init__(graph,
                                                          initial_membership,
                                                          mutable_nodes)
@@ -808,7 +814,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
       else:
         # Make sure it is a list
         weights = list(weights)
-
+    print("RBC python mutable nodes: {}".format(mutable_nodes))
     self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights, resolution_parameter)
     self._update_internal_membership()
@@ -903,7 +909,6 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
       else:
         # Make sure it is a list
         node_sizes = list(node_sizes)
-
     self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()

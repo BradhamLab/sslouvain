@@ -105,7 +105,6 @@ class Optimiser(object):
     >>> diff = optimiser.optimise_partition(partition)
 
     """
-    # Perhaps we
     diff = _c_louvain._Optimiser_optimise_partition(self._optimiser, partition._partition)
     partition._update_internal_membership()
     return diff

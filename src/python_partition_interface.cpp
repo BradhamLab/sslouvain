@@ -501,7 +501,6 @@ extern "C"
             mutable_nodes[v] = true;
           }
         }
-
         partition = new CPMVertexPartition(graph, initial_membership, 
                                            mutable_nodes, resolution_parameter);
       }
@@ -684,10 +683,15 @@ extern "C"
             mutable_nodes[v] = true;
           }
         }
-
-        partition = new RBConfigurationVertexPartition(graph, initial_membership, resolution_parameter);
+        for (int i = 0; i < mutable_nodes.size(); i++) {
+          std::cout << "C++ mutable node " << mutable_nodes[i] << std::endl;
+        }
+        partition = new RBConfigurationVertexPartition(graph, initial_membership,
+                                                       mutable_nodes,
+                                                       resolution_parameter);
       }
       else
+        std::cout << "We here." << std::endl;
         partition = new RBConfigurationVertexPartition(graph, resolution_parameter);
 
       // Do *NOT* forget to remove the graph upon deletion

@@ -55,6 +55,9 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
       throw Exception("Mutable vector has incorrect size.");
     }
     this -> set_mutable(mutables);
+    for (int i = 0; i < this -> _mutables.size(); i++) {
+      std::cerr << "MutableVertex MutableNode: " << this -> mutables(i) << std::endl;
+    }
 }
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph)
@@ -62,7 +65,8 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph)
   this->destructor_delete_graph = false;
   this->graph = graph;
   this->_membership = range(graph->vcount());
-  this->_mutables = vector<bool>(true, graph->vcount());
+  this -> _mutables.resize(graph -> vcount());
+  this -> set_mutable(vector<bool>(true, graph->vcount()));
   this->init_admin();
 }
 
@@ -143,6 +147,7 @@ vector<bool> MutableVertexPartition::collapse_mutables() {
  * @param mutables: vector defining which nodes have mutable labels 
  */
 void MutableVertexPartition::set_mutable(vector<bool> const& mutables) {
+  std::cout << "setting mutables..." << std::endl;
   for (size_t i = 0; i < this -> graph -> vcount(); i++) {
     this -> _mutables[i] = mutables[i];
   }
