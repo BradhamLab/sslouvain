@@ -685,7 +685,9 @@ extern "C"
           }
         }
 
-        partition = new RBConfigurationVertexPartition(graph, initial_membership, resolution_parameter);
+        partition = new RBConfigurationVertexPartition(graph, initial_membership,
+                                                       mutable_nodes,
+                                                       resolution_parameter);
       }
       else
         partition = new RBConfigurationVertexPartition(graph, resolution_parameter);
