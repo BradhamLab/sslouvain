@@ -2,6 +2,7 @@ import igraph as _ig
 from . import _c_louvain
 from .functions import _get_py_capsule
 import sys
+import warnings
 # Check if working with Python 3
 PY3 = (sys.version > '3')
 
@@ -56,8 +57,6 @@ class MutableVertexPartition(_ig.VertexClustering):
     else:
       mutable_nodes = [True] * graph.vcount()
     self.mutables = mutable_nodes
-    print('Calling MutableVertex supers...')
-    print("Current nodes {}".format(mutable_nodes))
     super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
   @classmethod
@@ -628,8 +627,6 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
     
-    print('Calling LinearRes supers...')
-    print("Current nodes {}".format(mutable_nodes))
     super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership,
                                                                    mutable_nodes)
 
@@ -794,14 +791,14 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     resolution_parameter : double
       Resolution parameter.
     """
+    warnings.warn("Semi-supervised implemention of RBConfigurationVertexPartion" 
+                  " is currently non-functional. Nodes are not held immutable, "
+                  "and normal louvain clustering occurs instead.")
     if initial_membership is not None:
       initial_membership = list(initial_membership)
     if mutable_nodes is not None:
       mutable_nodes = list(mutable_nodes)
 
-
-    print('Calling RBC supers...')
-    print("Current nodes {}".format(mutable_nodes))
     super(RBConfigurationVertexPartition, self).__init__(graph,
                                                          initial_membership,
                                                          mutable_nodes)
@@ -814,7 +811,6 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
       else:
         # Make sure it is a list
         weights = list(weights)
-    print("RBC python mutable nodes: {}".format(mutable_nodes))
     self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
         initial_membership, mutable_nodes, weights, resolution_parameter)
     self._update_internal_membership()
