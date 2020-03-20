@@ -91,7 +91,7 @@ class Graph
     size_t possible_edges();
     size_t possible_edges(size_t n);
 
-    Graph* collapse_graph(MutableVertexPartition* partition);
+    Graph* collapse_graph(MutableVertexPartition* partition, vector<bool>& mutables);
 
     double weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode);
     void cache_neigh_communities(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
