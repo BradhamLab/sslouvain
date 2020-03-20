@@ -66,7 +66,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph)
   this->graph = graph;
   this->_membership = range(graph->vcount());
   this -> _mutables.resize(graph -> vcount());
-  this -> set_mutable(vector<bool>(true, graph->vcount()));
+  this -> set_mutable(vector<bool>(graph->vcount(), true));
   this->init_admin();
 }
 
@@ -148,6 +148,13 @@ vector<bool> MutableVertexPartition::collapse_mutables() {
  */
 void MutableVertexPartition::set_mutable(vector<bool> const& mutables) {
   std::cout << "setting mutables..." << std::endl;
+  if (mutables.size() != _mutables.size()) {
+    string msg = "Size of passed mutables does not match expected size. Expected : ";
+    msg.append(std::to_string(_mutables.size()));
+    msg.append(", Received: ");
+    msg.append(std::to_string(mutables.size()));
+    throw msg;
+  }
   for (size_t i = 0; i < this -> graph -> vcount(); i++) {
     this -> _mutables[i] = mutables[i];
   }
