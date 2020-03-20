@@ -5,62 +5,52 @@
 #include <boost/stacktrace.hpp>
 
 // ss modificaitons 
-RBConfigurationVertexPartition::RBConfigurationVertexPartition(
-  Graph* graph,
-  vector<size_t> const& membership,
-  vector<bool> const& mutables,
-  double resolution_parameter) : LinearResolutionParameterVertexPartition(
-    graph, membership, mutables, resolution_parameter) {
-      std::cout << "RBCVertex 1" << std::endl;
-      for (int i = 0; i < mutables.size(); i++) {
-        std::cout << mutables[i] << ", ";
-      }
-      std::cout << std::endl;
-  
-      // this -> set_mutable(mutables);
-      // for (int i = 0; i < this->mutables().size(); i++) {
-      //   std::cout << this -> mutables(i) << ", ";
-      // }
-      // std::cout << std::endl;
-}
-
-RBConfigurationVertexPartition::RBConfigurationVertexPartition(
-  Graph* graph,
-  vector<size_t> const& membership,
-  vector<bool> const& mutables) : LinearResolutionParameterVertexPartition(
-    graph, membership, mutables)
-{ std::cout << "RBCVertex 2" << std::endl;}
-
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> const& membership, double resolution_parameter) :
+                                       vector<size_t> membership,
+                                       vector<bool> mutables,
+                                       double resolution_parameter) :
+  LinearResolutionParameterVertexPartition(graph,
+                                           membership,
+                                           mutables,
+                                           resolution_parameter)
+{ }
+
+RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+                                       vector<size_t> membership,
+                                       vector<bool> mutables) :
+  LinearResolutionParameterVertexPartition(graph,
+                                           membership,
+                                           mutables)
+{ }
+
+RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+      vector<size_t> membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
         membership, resolution_parameter)
-{ std::cout << "RBCVertex 3" << std::endl;}
+{ }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> const& membership) :
+      vector<size_t> membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
-{std::cout << "RBCVertex 4" << std::endl; }
+{ }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
       double resolution_parameter) :
-        LinearResolutionParameterVertexPartition(graph, resolution_parameter) {
-  std::cout << "RBCVertex 5" << std::endl; 
-  std::cout << boost::stacktrace::stacktrace() << std::endl;
-
-}
+        LinearResolutionParameterVertexPartition(graph, resolution_parameter)
+{ }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph) :
         LinearResolutionParameterVertexPartition(graph)
-{ std::cout << "RBCVertex 6" << std::endl;}
+{ }
 
 RBConfigurationVertexPartition::~RBConfigurationVertexPartition()
 { }
 
 RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph)
 {
+  std::cout << "Where dis do" << std::endl;
   return new RBConfigurationVertexPartition(graph, this->resolution_parameter);
 }
 
@@ -68,6 +58,71 @@ RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* gr
 {
   return new RBConfigurationVertexPartition(graph, membership, this->resolution_parameter);
 }
+
+// RBConfigurationVertexPartition::RBConfigurationVertexPartition(
+//   Graph* graph,
+//   vector<size_t> const& membership,
+//   vector<bool> const& mutables,
+//   double resolution_parameter) : LinearResolutionParameterVertexPartition(
+//     graph, membership, mutables, resolution_parameter) {
+//       std::cout << "RBCVertex 1" << std::endl;
+//       for (int i = 0; i < mutables.size(); i++) {
+//         std::cout << mutables[i] << ", ";
+//       }
+//       std::cout << std::endl;
+  
+//       // this -> set_mutable(mutables);
+//       // for (int i = 0; i < this->mutables().size(); i++) {
+//       //   std::cout << this -> mutables(i) << ", ";
+//       // }
+//       // std::cout << std::endl;
+// }
+
+// RBConfigurationVertexPartition::RBConfigurationVertexPartition(
+//   Graph* graph,
+//   vector<size_t> const& membership,
+//   vector<bool> const& mutables) : LinearResolutionParameterVertexPartition(
+//     graph, membership, mutables)
+// { std::cout << "RBCVertex 2" << std::endl;}
+
+
+// RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+//       vector<size_t> const& membership, double resolution_parameter) :
+//         LinearResolutionParameterVertexPartition(graph,
+//         membership, resolution_parameter)
+// { std::cout << "RBCVertex 3" << std::endl;}
+
+// RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+//       vector<size_t> const& membership) :
+//         LinearResolutionParameterVertexPartition(graph,
+//         membership)
+// {std::cout << "RBCVertex 4" << std::endl; }
+
+// RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+//       double resolution_parameter) :
+//         LinearResolutionParameterVertexPartition(graph, resolution_parameter) {
+//   std::cout << boost::stacktrace::stacktrace() << std::endl;
+//   throw Exception("Yeup");
+//   std::cout << "RBCVertex 5" << std::endl; 
+
+// }
+
+// RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph) :
+//         LinearResolutionParameterVertexPartition(graph)
+// { std::cout << "RBCVertex 6" << std::endl;}
+
+// RBConfigurationVertexPartition::~RBConfigurationVertexPartition()
+// { }
+
+// RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph)
+// {
+//   return new RBConfigurationVertexPartition(graph, this->resolution_parameter);
+// }
+
+// RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+// {
+//   return new RBConfigurationVertexPartition(graph, membership, this->resolution_parameter);
+// }
 
 /*****************************************************************************
   Returns the difference in modularity if we move a node to a new community
