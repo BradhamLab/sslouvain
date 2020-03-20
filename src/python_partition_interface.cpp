@@ -1110,11 +1110,15 @@ extern "C"
     #endif
 
     // First collapse graph (i.e. community graph)
-    Graph* collapsed_graph = partition->get_graph()->collapse_graph(partition);
+    vector<bool> collapsed_mutables;
+    collapsed_mutables.resize(partition -> nb_communities());
+    Graph* collapsed_graph = partition->get_graph()->collapse_graph(partition,
+                                                                    collapsed_mutables);
 
     // Create collapsed partition (i.e. default partition of each node in its own community).
     MutableVertexPartition* collapsed_partition = partition->create(collapsed_graph);
-    collapsed_partition->destructor_delete_graph = true;
+    collapsed_partition -> set_mutable(collapsed_mutables);
+    collapsed_partition -> destructor_delete_graph = true;
 
     PyObject* py_collapsed_partition = capsule_MutableVertexPartition(collapsed_partition);
     return py_collapsed_partition;
