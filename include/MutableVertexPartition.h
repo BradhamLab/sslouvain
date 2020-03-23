@@ -58,7 +58,11 @@ class MutableVertexPartition
     inline vector<size_t> const& membership() const { return this->_membership;};
     // Semi Supervised methods
     inline bool mutables(size_t v) { return this -> _mutables[v];};
-    inline vector<bool> const& mutables() const {return this -> _mutables;};
+    vector<bool> const mutables();
+
+    // debugging
+    void print_mutables();
+    void print_mutables_and_membership();
 
     size_t csize(size_t comm);
     set<size_t> const& get_community(size_t comm);
@@ -102,7 +106,6 @@ class MutableVertexPartition
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
 
     // SemiSupervised modifications
-    vector<bool> collapse_mutables();
     void set_mutable(vector<bool> const& mutables);
     // void set_mutable();
 
@@ -115,7 +118,7 @@ class MutableVertexPartition
     void init_admin();
 
     vector<size_t> _membership; // Membership vector, i.e. \sigma_i = c means that node i is in community c
-    vector<bool> _mutables; // this is only used for SemiSupervisedVertex
+    map<size_t, bool> _mutables; // track mutable nodes
     Graph* graph;
 
     // Keep track of each community (i.e. which community contains which nodes)

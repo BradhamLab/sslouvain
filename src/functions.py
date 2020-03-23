@@ -5,7 +5,6 @@ from ._c_louvain import ALL_COMMS
 from ._c_louvain import ALL_NEIGH_COMMS
 from ._c_louvain import RAND_COMM
 from ._c_louvain import RAND_NEIGH_COMM
-from ._c_louvain import MUTABLE_NEIGH_COMMS
 
 from collections import Counter
 

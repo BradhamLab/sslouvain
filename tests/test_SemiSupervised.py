@@ -1,12 +1,12 @@
+import csv
+import json
+import os
 import unittest
 from itertools import compress
-import os
 
 import igraph as ig
 import sslouvain
-import csv
-
-from ddt import ddt, data, unpack
+from ddt import data, ddt, unpack
 
 FILEDIR = os.path.dirname(__file__)
 
@@ -32,39 +32,25 @@ class BaseTest:
             g.add_edges(list(zip(sources, targets)))
             g.es['weight'] = weights
             self.graph = g
-            self.expected_y = [[0, 0, 0, 1, 1, 1, 2, 2, 2, 0],
-                               [0, 0, 0, 1, 1, 1, 2, 2, 2, 1],
-                               [0, 0, 0, 1, 1, 1, 2, 2, 2, 2]]
+            filename = os.path.join(FILEDIR, "data/louvain_partitions.json")
+            with open(filename, "r") as f:
+                self.louvain_partitions = json.load(f)
+            self.name = None
+            self.partition_type = None
 
         def test_all_mutable(self):
             """
-            Test making all nodes mutable returns same output as ALL_NEIGH_COMMS.
+            Test making all nodes mutable returns expect louvain output.
             """
             mutables = [True] * self.graph.vcount()
             initial_membership = list(range(self.graph.vcount()))
-            optimiser = sslouvain.Optimiser()
-            optimiser.consider_comms = sslouvain.MUTABLE_NEIGH_COMMS
-            partition = self.partition_type(self.graph,
-                                            initial_membership=initial_membership,
-                                            mutable_nodes=mutables)
-            optimiser.optimise_partition(partition)
-            ss_membership = partition.membership
-            optimiser.consider_comms = sslouvain.ALL_NEIGH_COMMS
-            partition = self.partition_type(self.graph,
-                                            initial_membership=initial_membership,
-                                            mutable_nodes=mutables)
-            optimiser.optimise_partition(partition)
-            all_neigh_membership = partition.membership
-            # the last node can be in either of the 3 communities, ignore when
-            # testing
-            ss_idx = get_membership_index(ss_membership[:-1])
-            all_neigh_idx = get_membership_index(all_neigh_membership[:-1])
-            test_list = [ss_idx[i] == all_neigh_idx[i]\
-                         for i in range(len(ss_idx))]
-            self.assertTrue(all(test_list),
-                            msg=f"Mutable membership {ss_membership}\n" 
-                                f"Neighbor membership {all_neigh_membership}\n"
-                                f"Expected: {test_list}")
+            partition = sslouvain.find_partition(self.graph,
+                                                 self.partition_type,
+                                                 initial_membership=initial_membership,
+                                                 mutable_nodes=mutables)
+            louvain_dict = get_membership_index(self.louvain_partitions[self.name])
+            member_dict = get_membership_index(partition.membership)
+            self.assertDictEqual(louvain_dict, member_dict)
 
         def test_membership_size(self):
             """Test expected membership size."""
@@ -85,8 +71,6 @@ class BaseTest:
                                                  initial_membership=range(n),
                                                  mutable_nodes=[False] * n)
             member_idx = get_membership_index(partition.membership)
-            print(self.partition_type, partition.membership)
-            test_list = [len(x) == 1 for x in member_idx.values()]
             self.assertDictEqual(member_idx, singleton_dict)
 
 # class LargeTest:
@@ -104,16 +88,19 @@ class BaseTest:
                 # skip header
                 next(csvreader)
                 for i, row in enumerate(csvreader):
-                    labels[i] = int(row[1])
+                    label = row[1]
+                    if 'Perturbed' in row[1]:
+                        label = 4
+                    labels[i] = int(label)
                     mutables[i] = row[2] == 'True'
             immutable_idxs = {}
-            for x in [0, 1, 2]:
+            for x in [1, 2, 3]:
                 immutable_idxs[x] = [i for i, each in enumerate(labels) if each == x]
             self.graph = graph
             self.labels = labels
             self.mutables = mutables
             self.idx_lookup = immutable_idxs
-            self.maxDiff = 5
+            self.partition_type = None
 
         def test_immutable_0(self):
             """
@@ -123,7 +110,7 @@ class BaseTest:
                                                  self.partition_type,
                                                  initial_membership=self.labels,
                                                  mutable_nodes=self.mutables)
-            new_labels_0 = [partition.membership[i] for i in self.idx_lookup[0]]
+            new_labels_0 = [partition.membership[i] for i in self.idx_lookup[1]]
             expected = [new_labels_0[0]] * len(new_labels_0)
             self.assertListEqual(expected, new_labels_0)
 
@@ -135,7 +122,7 @@ class BaseTest:
                                                  self.partition_type,
                                                  initial_membership=self.labels,
                                                  mutable_nodes=self.mutables)
-            new_labels_1 = [partition.membership[i] for i in self.idx_lookup[1]]
+            new_labels_1 = [partition.membership[i] for i in self.idx_lookup[2]]
             expected = [new_labels_1[0]] * len(new_labels_1)
             self.assertListEqual(expected, new_labels_1)
 
@@ -147,7 +134,7 @@ class BaseTest:
                                                  self.partition_type,
                                                  initial_membership=self.labels,
                                                  mutable_nodes=self.mutables)
-            new_labels_2 = [partition.membership[i] for i in self.idx_lookup[2]]
+            new_labels_2 = [partition.membership[i] for i in self.idx_lookup[3]]
             expected = [new_labels_2[0]] * len(new_labels_2)
             self.assertListEqual(expected, new_labels_2)
 
@@ -156,31 +143,36 @@ class BaseModularityVertexPartitionTest(BaseTest.KnownPartitions):
   def setUp(self):
       super(BaseModularityVertexPartitionTest, self).setUp();
       self.partition_type = sslouvain.ModularityVertexPartition;
+      self.name = 'Modularity'
 
 class LargeModularityVertexPartitionTest(BaseTest.UnknownPartitions):
   def setUp(self):
       super(LargeModularityVertexPartitionTest, self).setUp();
       self.partition_type = sslouvain.ModularityVertexPartition;
+      
 
 class BaseRBERVertexPartitionTest(BaseTest.KnownPartitions):
   def setUp(self):
       super(BaseRBERVertexPartitionTest, self).setUp();
       self.partition_type = sslouvain.RBERVertexPartition;
+      self.name = 'RBER'
 
 class LargeRBERVertexPartitionTest(BaseTest.UnknownPartitions):
-  def setUp(self):
-      super(LargeRBERVertexPartitionTest, self).setUp();
-      self.partition_type = sslouvain.RBERVertexPartition;
+    def setUp(self):
+        super(LargeRBERVertexPartitionTest, self).setUp();
+        self.partition_type = sslouvain.RBERVertexPartition;
 
-# class RBConfigurationVertexPartitionTest(BaseTest.KnownPartitions):
-#  def setUp(self):
-#    super(RBConfigurationVertexPartitionTest, self).setUp();
-#    self.partition_type = sslouvain.RBConfigurationVertexPartition;
+class RBConfigurationVertexPartitionTest(BaseTest.KnownPartitions):
+    def setUp(self):
+        super(RBConfigurationVertexPartitionTest, self).setUp();
+        self.partition_type = sslouvain.RBConfigurationVertexPartition;
+        self.name = 'RBConfiguration'
 
 class BaseCPMVertexPartitionTest(BaseTest.KnownPartitions):
     def setUp(self):
         super(BaseCPMVertexPartitionTest, self).setUp();
         self.partition_type = sslouvain.CPMVertexPartition;
+        self.name = "CPM"
 
 class LargeCPMVertexPartitionTest(BaseTest.UnknownPartitions):
     def setUp(self):
@@ -191,6 +183,7 @@ class BaseSurpriseVertexPartitionTest(BaseTest.KnownPartitions):
     def setUp(self):
         super(BaseSurpriseVertexPartitionTest, self).setUp();
         self.partition_type = sslouvain.SurpriseVertexPartition;
+        self.name = "Surprise"
 
 class LargeSurpriseVertexPartitionTest(BaseTest.UnknownPartitions):
     def setUp(self):
@@ -201,6 +194,7 @@ class BaseSignificanceVertexPartitionTest(BaseTest.KnownPartitions):
     def setUp(self):
         super(BaseSignificanceVertexPartitionTest, self).setUp();
         self.partition_type = sslouvain.SignificanceVertexPartition;
+        self.name = "Significance"
 
 class LargeSignificanceVertexPartitionTest(BaseTest.UnknownPartitions):
     def setUp(self):

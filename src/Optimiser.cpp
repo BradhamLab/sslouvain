@@ -19,13 +19,10 @@
         RAND_COMM       -- Consider a random commmunity for improvement.
         RAND_NEIGH_COMM -- Consider a random community among the neighbours
                            for improvement.
-        MUTABLE_NEIGH_COMMS -- Consider all neighbor communities for mutable
-                               nodes.
 ****************************************************************************/
 Optimiser::Optimiser()
 {
-  this->consider_comms = Optimiser::MUTABLE_NEIGH_COMMS;
-  // this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
+  this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->consider_empty_community = true;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
@@ -70,11 +67,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
   double q = 0.0;
   std::cout << "starting optimization\n";
-  vector<bool> mutes = partitions[0] -> mutables();
-  vector<size_t> membs = partitions[0] -> membership();
-  for (int i = 0; i < mutes.size(); i++) {
-    std::cout << "n=" << i << ", " << mutes[i] << ", " << membs[i] << std::endl;
-  }
+  partitions[0] -> print_mutables_and_membership();
   
   // Number of multiplex layers
   size_t nb_layers = partitions.size();
@@ -127,21 +120,13 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Quality before moving " <<  q << endl;
     #endif
     std::cout << "Before movement \n";
-    mutes = collapsed_partitions[0] -> mutables();
-    membs = collapsed_partitions[0] -> membership();
-    for (int i = 0; i < mutes.size(); i++) {
-      std::cout << "n=" << i << ", " << mutes[i] << ", " << membs[i] << std::endl;
-    }
+    collapsed_partitions[0] -> print_mutables_and_membership();
   
     improv = this->move_nodes(collapsed_partitions, layer_weights);
     total_improv += improv;
 
     std::cout << "After movement \n";
-    mutes = collapsed_partitions[0] -> mutables();
-    membs = collapsed_partitions[0] -> membership();
-    for (int i = 0; i < mutes.size(); i++) {
-      std::cout << "n=" << i << ", " << mutes[i] << ", " << membs[i] << std::endl;
-    }
+    collapsed_partitions[0] -> print_mutables_and_membership();
 
     #ifdef DEBUG
       cerr << "Found " << collapsed_partitions[0]->nb_communities() << " communities, improved " << improv << endl;
@@ -377,8 +362,17 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   {
     improv = 0.0;
     nb_moves = 0;
-    for (vector<size_t>::iterator v_it = nodes.begin();
-         v_it!= nodes.end();
+    vector<size_t> mutable_nodes;
+    std::cout << "subsetting nodes...\n";
+    for (vector<size_t>::iterator v_it = nodes.begin(); v_it != nodes.end(); v_it ++) {
+      if (partitions[0]->mutables(*v_it)) {
+        std::cout << "node " << *v_it << " set to mutable. Adding to subset.\n";
+        mutable_nodes.push_back(*v_it);
+      }
+    }
+    // vector<size_t> mutable_nodes = nodes;
+    for (vector<size_t>::iterator v_it = mutable_nodes.begin();
+         v_it!= mutable_nodes.end();
          v_it++)
     {
       size_t v = *v_it;
@@ -410,6 +404,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
           vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
+          std::cout << v << " neighbors: " << std::endl;
+          for (unsigned int i = 0; i < neigh_comm_layer.size(); i++) {
+            std::cout << neigh_comm_layer[i] << " ";
+          }
+          std::cout << endl;
           comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
       }
@@ -424,17 +423,6 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         size_t rand_layer = get_random_int(0, nb_layers - 1, &rng);
         if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
           comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
-      }
-      /************************ Neighbor Comms if Mutable *********************/
-      else if (consider_comms == MUTABLE_NEIGH_COMMS) {
-        for (size_t layer = 0; layer < nb_layers; layer++) {
-          std::cout << "node: " << v << ", mutable: " << partitions[layer] -> mutables(v) << endl;
-          // if mutable node, find neighboring communities
-          if (partitions[layer] -> mutables(v)) {
-            vector<size_t> const& neigh_comm_layer = partitions[layer]-> get_neigh_comms(v, IGRAPH_ALL);
-            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
-          }
-        }
       } else {
         throw Exception("Unrecognized community consideration.");
       }
@@ -506,6 +494,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
 
       // If we actually plan to move the node
+      // if (max_comm != v_comm && partitions[0] -> mutables(v))
       if (max_comm != v_comm)
       {
         // Keep track of improvement
