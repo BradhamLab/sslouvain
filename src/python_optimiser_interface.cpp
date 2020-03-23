@@ -70,6 +70,9 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    std::cout << "membership before calling optimize_partition()..." << std::endl;
+    partition -> print_mutables();
+
     double q = 0.0;
     try
     {

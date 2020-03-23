@@ -48,6 +48,7 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
   std::cout << "this opt also called " << std::endl;
+  partitions[0] -> print_mutables();
   return this->optimise_partition(partitions, layer_weights);
 }
 

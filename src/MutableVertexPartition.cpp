@@ -1,4 +1,5 @@
 #include "MutableVertexPartition.h"
+#include "stacktrace.h"
 
 #ifdef DEBUG
   using std::cerr;
@@ -53,9 +54,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
     }
     this -> set_mutable(mutables);
     std::cout << "MutableVertexPartition line 56.\n";
-    for (int i = 0; i < this -> graph -> vcount(); i++) {
-      std::cout << "MutableNode: " << i << ", " << this -> mutables(i) << std::endl;
-    }
+    this -> print_mutables();
 }
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph)
@@ -144,6 +143,7 @@ size_t MutableVertexPartition::nb_communities()
  */
 void MutableVertexPartition::set_mutable(vector<bool> const& mutables) {
   std::cout << "setting mutables..." << std::endl;
+  print_stacktrace(stdout);
   if (mutables.size() != this -> graph -> vcount()) {
     string msg = "Size of passed mutables does not match expected size. Expected : ";
     msg.append(std::to_string(this -> graph -> vcount()));

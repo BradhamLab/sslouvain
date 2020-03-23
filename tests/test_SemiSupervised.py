@@ -38,27 +38,27 @@ class BaseTest:
             self.name = None
             self.partition_type = None
 
-        def test_all_mutable(self):
-            """
-            Test making all nodes mutable returns expect louvain output.
-            """
-            mutables = [True] * self.graph.vcount()
-            initial_membership = list(range(self.graph.vcount()))
-            partition = sslouvain.find_partition(self.graph,
-                                                 self.partition_type,
-                                                 initial_membership=initial_membership,
-                                                 mutable_nodes=mutables)
-            louvain_dict = get_membership_index(self.louvain_partitions[self.name])
-            member_dict = get_membership_index(partition.membership)
-            self.assertDictEqual(louvain_dict, member_dict)
+        # def test_all_mutable(self):
+        #     """
+        #     Test making all nodes mutable returns expect louvain output.
+        #     """
+        #     mutables = [True] * self.graph.vcount()
+        #     initial_membership = list(range(self.graph.vcount()))
+        #     partition = sslouvain.find_partition(self.graph,
+        #                                          self.partition_type,
+        #                                          initial_membership=initial_membership,
+        #                                          mutable_nodes=mutables)
+        #     louvain_dict = get_membership_index(self.louvain_partitions[self.name])
+        #     member_dict = get_membership_index(partition.membership)
+        #     self.assertDictEqual(louvain_dict, member_dict)
 
-        def test_membership_size(self):
-            """Test expected membership size."""
-            n_nodes = 10
-            partition = self.partition_type(self.graph)
-            optimiser = sslouvain.Optimiser()
-            optimiser.optimise_partition(partition)
-            self.assertEqual(n_nodes, len(partition.membership))
+        # def test_membership_size(self):
+        #     """Test expected membership size."""
+        #     n_nodes = 10
+        #     partition = self.partition_type(self.graph)
+        #     optimiser = sslouvain.Optimiser()
+        #     optimiser.optimise_partition(partition)
+        #     self.assertEqual(n_nodes, len(partition.membership))
 
         def test_no_mutables(self):
             """
@@ -139,67 +139,72 @@ class BaseTest:
             self.assertListEqual(expected, new_labels_2)
 
 
-class BaseModularityVertexPartitionTest(BaseTest.KnownPartitions):
-  def setUp(self):
-      super(BaseModularityVertexPartitionTest, self).setUp();
-      self.partition_type = sslouvain.ModularityVertexPartition;
-      self.name = 'Modularity'
+# class BaseModularityVertexPartitionTest(BaseTest.KnownPartitions):
+#   def setUp(self):
+#       super(BaseModularityVertexPartitionTest, self).setUp();
+#       self.partition_type = sslouvain.ModularityVertexPartition;
+#       self.name = 'Modularity'
 
-class LargeModularityVertexPartitionTest(BaseTest.UnknownPartitions):
-  def setUp(self):
-      super(LargeModularityVertexPartitionTest, self).setUp();
-      self.partition_type = sslouvain.ModularityVertexPartition;
+# class LargeModularityVertexPartitionTest(BaseTest.UnknownPartitions):
+#   def setUp(self):
+#       super(LargeModularityVertexPartitionTest, self).setUp();
+#       self.partition_type = sslouvain.ModularityVertexPartition;
       
 
-class BaseRBERVertexPartitionTest(BaseTest.KnownPartitions):
-  def setUp(self):
-      super(BaseRBERVertexPartitionTest, self).setUp();
-      self.partition_type = sslouvain.RBERVertexPartition;
-      self.name = 'RBER'
+# class BaseRBERVertexPartitionTest(BaseTest.KnownPartitions):
+#   def setUp(self):
+#       super(BaseRBERVertexPartitionTest, self).setUp();
+#       self.partition_type = sslouvain.RBERVertexPartition;
+#       self.name = 'RBER'
 
-class LargeRBERVertexPartitionTest(BaseTest.UnknownPartitions):
-    def setUp(self):
-        super(LargeRBERVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.RBERVertexPartition;
+# class LargeRBERVertexPartitionTest(BaseTest.UnknownPartitions):
+#     def setUp(self):
+#         super(LargeRBERVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.RBERVertexPartition;
 
-class RBConfigurationVertexPartitionTest(BaseTest.KnownPartitions):
+class BaseRBConfigurationVertexPartitionTest(BaseTest.KnownPartitions):
     def setUp(self):
-        super(RBConfigurationVertexPartitionTest, self).setUp();
+        super(BaseRBConfigurationVertexPartitionTest, self).setUp();
         self.partition_type = sslouvain.RBConfigurationVertexPartition;
         self.name = 'RBConfiguration'
 
-class BaseCPMVertexPartitionTest(BaseTest.KnownPartitions):
-    def setUp(self):
-        super(BaseCPMVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.CPMVertexPartition;
-        self.name = "CPM"
+# class LargeRBConfigurationVertexPartitionTest(BaseTest.UnknownPartitions):
+#     def setUp(self):
+#         super(LargeRBConfigurationVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.RBConfigurationVertexPartition;
 
-class LargeCPMVertexPartitionTest(BaseTest.UnknownPartitions):
-    def setUp(self):
-        super(LargeCPMVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.CPMVertexPartition;
+# class BaseCPMVertexPartitionTest(BaseTest.KnownPartitions):
+#     def setUp(self):
+#         super(BaseCPMVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.CPMVertexPartition;
+#         self.name = "CPM"
 
-class BaseSurpriseVertexPartitionTest(BaseTest.KnownPartitions):
-    def setUp(self):
-        super(BaseSurpriseVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.SurpriseVertexPartition;
-        self.name = "Surprise"
+# class LargeCPMVertexPartitionTest(BaseTest.UnknownPartitions):
+#     def setUp(self):
+#         super(LargeCPMVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.CPMVertexPartition;
 
-class LargeSurpriseVertexPartitionTest(BaseTest.UnknownPartitions):
-    def setUp(self):
-        super(LargeSurpriseVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.SurpriseVertexPartition;
+# class BaseSurpriseVertexPartitionTest(BaseTest.KnownPartitions):
+#     def setUp(self):
+#         super(BaseSurpriseVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.SurpriseVertexPartition;
+#         self.name = "Surprise"
 
-class BaseSignificanceVertexPartitionTest(BaseTest.KnownPartitions):
-    def setUp(self):
-        super(BaseSignificanceVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.SignificanceVertexPartition;
-        self.name = "Significance"
+# class LargeSurpriseVertexPartitionTest(BaseTest.UnknownPartitions):
+#     def setUp(self):
+#         super(LargeSurpriseVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.SurpriseVertexPartition;
 
-class LargeSignificanceVertexPartitionTest(BaseTest.UnknownPartitions):
-    def setUp(self):
-        super(LargeSignificanceVertexPartitionTest, self).setUp();
-        self.partition_type = sslouvain.SignificanceVertexPartition;
+# class BaseSignificanceVertexPartitionTest(BaseTest.KnownPartitions):
+#     def setUp(self):
+#         super(BaseSignificanceVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.SignificanceVertexPartition;
+#         self.name = "Significance"
+
+# class LargeSignificanceVertexPartitionTest(BaseTest.UnknownPartitions):
+#     def setUp(self):
+#         super(LargeSignificanceVertexPartitionTest, self).setUp();
+#         self.partition_type = sslouvain.SignificanceVertexPartition;
 
 #%%
 if __name__ == '__main__':

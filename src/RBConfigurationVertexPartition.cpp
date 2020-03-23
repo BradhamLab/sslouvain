@@ -7,27 +7,29 @@
 // ss modificaitons 
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-                                       vector<size_t> membership,
-                                       vector<bool> mutables,
-                                       double resolution_parameter) :
+                                                               vector<size_t> const& membership,
+                                                               vector<bool> const& mutables,
+                                                               double resolution_parameter) :
   LinearResolutionParameterVertexPartition(graph,
                                            membership,
                                            mutables,
                                            resolution_parameter)
-{ }
+{ std::cout << "RBC Inititializer\n"; this -> print_mutables();}
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-                                       vector<size_t> membership,
-                                       vector<bool> mutables) :
+                                                               vector<size_t> const& membership,
+                                                               vector<bool> const& mutables) :
   LinearResolutionParameterVertexPartition(graph,
                                            membership,
                                            mutables)
-{ }
+{ this -> set_mutable(mutables);}
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> membership, double resolution_parameter) :
+                                                               vector<size_t> const& membership,
+                                                               double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
-        membership, resolution_parameter)
+                                                 membership,
+                                                 resolution_parameter)
 { }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
