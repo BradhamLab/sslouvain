@@ -10,14 +10,14 @@ This package implements a semi-superised version of the louvain algorithm in `C+
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
 function is `find_partition` which finds the optimal partition using the
-louvain algorithm [1]_ for a number of different methods. The methods currently
-implemented are (1) modularity [2]_, (2) Reichardt and Bornholdt's model using
-the configuration null model and the Erdös-Rényi null model [3]_, (3) the
-constant Potts model (CPM) [4]_, (4) Significance [5]_, and finally (5)
-Surprise [6]_. In addition, it supports multiplex partition optimisation
-allowing community detection on for example negative links [7]_ or multiple
-time slices [8]_. It also provides some support for community detection on
-bipartite graphs. See the [documentation](http://louvain-igraph.readthedocs.io/en/latest/)`_ for more information.
+louvain algorithm [1] for a number of different methods. The methods currently
+implemented are (1) modularity [2], (2) Reichardt and Bornholdt's model using
+the configuration null model and the Erdös-Rényi null model [3], (3) the
+constant Potts model (CPM) [4], (4) Significance [5], and finally (5)
+Surprise [6]. In addition, it supports multiplex partition optimisation
+allowing community detection on for example negative links [7] or multiple
+time slices [8]. It also provides some support for community detection on
+bipartite graphs. See the [documentation](http://louvain-igraph.readthedocs.io/en/latest/) for more information.
 
 ![Louvain Documentation](https://readthedocs.org/projects/louvain-igraph/badge "Louvain Documentation Status")
 ![Louvian Build Status](https://travis-ci.org/vtraag/louvain-igraph.svg "Louvain Build Status")
@@ -135,6 +135,8 @@ To run original `louvain` unit tests for optimization and vertex partitions:
 python tests/test_VertexPartition.py
 python tests/test_Optimiser.py
 ```
+
+**Semi-supervised multiplex and bipartite partitioning is un-tested.**
 
 Contribute
 ----------
