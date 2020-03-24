@@ -100,7 +100,7 @@ G = ig.Graph.Erdos_Renyi(100, 0.1)
 For finding a partition using traditional louvain community detection:
 
 ```python
-part = sslouvain.find_partition(G, louvain.ModularityVertexPartition)
+part = sslouvain.find_partition(G, sslouvain.ModularityVertexPartition)
 ```
 
 However, by specifiying both initial membership and mutable nodes, we can perform semi-supervised clustering.
@@ -119,6 +119,21 @@ mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
 part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
                                 initial_membership=labels,
                                 mutable_nodes=mutable)
+```
+
+Tests
+-----
+
+To test for specific semi-supervised implementation, from the head of the repository run:
+```
+python tests/test_SemiSupervised.py
+```
+
+To run original `louvain` unit tests for optimization and vertex partitions:
+
+```
+python tests/test_VertexPartition.py
+python tests/test_Optimiser.py
 ```
 
 Contribute
