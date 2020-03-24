@@ -1,15 +1,15 @@
 **Notice** 
 
-This package is a fork of the no-longer-maintained `louvain-igraph <https://github.com/vtraag/louvain-igraph>`_ package that has been superseded by the `leidenalg <https://github.com/vtraag/leidenalg>`_ package. This package implements a semi-supervised version of Louvain community detection, where specified labels remain constant during optimization. The API is consistent with the original `louvain-igraph` and functionality and implementation should be unchanged. 
+This package is a fork of the no-longer-maintained [`louvain-igraph`](https://github.com/vtraag/louvain-igraph) package that has been superseded by the [leidenalg](https://github.com/vtraag/leidenalg) package. This package implements a semi-supervised version of Louvain community detection, where specified labels remain constant during optimization. The API is consistent with the original `louvain-igraph` package, and functionality and implementation should be unchanged. 
 
 louvain-igraph
 ==============
 
-This package implements a semi-superised version of the louvain algorithm in ``C++`` and exposes it to
-``python``.  It relies on ``(python-)igraph`` for it to function. Besides the
+This package implements a semi-superised version of the louvain algorithm in `C++` and exposes it to
+`python`.  It relies on `(python-)igraph` for it to function. Besides the
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
-function is ``find_partition`` which finds the optimal partition using the
+function is `find_partition` which finds the optimal partition using the
 louvain algorithm [1]_ for a number of different methods. The methods currently
 implemented are (1) modularity [2]_, (2) Reichardt and Bornholdt's model using
 the configuration null model and the Erdös-Rényi null model [3]_, (3) the
@@ -34,32 +34,32 @@ bipartite graphs. See the `documentation
 Installation
 ------------
 
-In short, for Unix: ``pip install sslouvain``. For Windows: download the binary
+In short, for Unix: `pip install sslouvain`. For Windows: download the binary
 installers.
 
 For Unix like systems it is possible to install from source. For Windows this
 is overly complicated, and you are recommended to use the binary installation
-files.  There are two things that are needed by this package: the igraph ``C``
+files.  There are two things that are needed by this package: the igraph `C`
 core library and the python-igraph python package. For both, please see
 http://igraph.org.
 
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
-installed using ``sudo apt-get install build-essential``, please refer to the
-documentation for your specific system.  Make sure that not only ``gcc`` is
-installed, but also ``g++``, as the louvain package is programmed in ``C++``.
-Note that to compile ``igraph`` itself, you also need to install
-``libxml2-dev``.
+installed using `sudo apt-get install build-essential`, please refer to the
+documentation for your specific system.  Make sure that not only `gcc` is
+installed, but also `g++`, as the louvain package is programmed in `C++`.
+Note that to compile `igraph` itself, you also need to install
+`libxml2-dev`.
 
-You can check if all went well by running a variety of tests using ``python
-setup.py test``.
+You can check if all went well by running a variety of tests using `python
+setup.py test`.
 
 There are basically two installation modes, similar to the python-igraph
 package itself (from which most of the setup.py comes).
 
-1. No ``C`` core library is installed yet. The packages will be compiled and
-   linked statically to an automatically downloaded version of the ``C`` core
+1. No `C` core library is installed yet. The packages will be compiled and
+   linked statically to an automatically downloaded version of the `C` core
    library of igraph.
-2. A ``C`` core library is already installed. In this case, the package will
+2. A `C` core library is already installed. In this case, the package will
    link dynamically to the already installed version. This is probably also the
    version that is used by the igraph package, but you may want to double check
    this.
@@ -67,20 +67,20 @@ package itself (from which most of the setup.py comes).
 In case the python-igraph package is already installed before, make sure that
 both use the **same versions**.
 
-The cleanest setup it to install and compile the ``C`` core library yourself
+The cleanest setup it to install and compile the `C` core library yourself
 (make sure that the header files are also included, e.g. install also the
 development package from igraph). Then both the python-igraph package, as well
-as this package are compiled and (dynamically) linked to the same ``C`` core
+as this package are compiled and (dynamically) linked to the same `C` core
 library.
 
 Troubleshooting
 ---------------
 
 In case of any problems, best to start over with a clean environment. Make sure
-you remove the python-igraph package completely, remove the ``C`` core library
+you remove the python-igraph package completely, remove the `C` core library
 and remove the louvain package. Then, do a complete reinstall starting from
-``pip install sslouvain``. In case you want a dynamic library be sure to then
-install the ``C`` core library from source before. Make sure you **install the
+`pip install sslouvain`. In case you want a dynamic library be sure to then
+install the `C` core library from source before. Make sure you **install the
 same versions**.
 
 Usage
@@ -94,32 +94,38 @@ on function calls and parameters.
 Just to get you started, below the essential parts.
 To start, make sure to import the packages:
 
->>> import sslouvain
->>> import igraph as ig
+```python
+import sslouvain
+import igraph as ig
+```
 
 We'll create a random graph for testing purposes:
 
->>> G = ig.Graph.Erdos_Renyi(100, 0.1);
+```python
+G = ig.Graph.Erdos_Renyi(100, 0.1)
+```
 
 For finding a partition using traditional louvain community detection:
 
->>> part = sslouvain.find_partition(G, louvain.ModularityVertexPartition);
+```part = sslouvain.find_partition(G, louvain.ModularityVertexPartition)```
 
 However, by specifiying both initial membership and mutable nodes, we can perform semi-supervised clustering.
 
-.. code-block:: python
-  import random
+```python
 
-  # label first half of nodes
-  labels = random.choices(range(5), k= G.vcount() // 2)
-  labels += list(range(5, G.vcount() // 2))
+import random
 
-  # set first half of nodes as immutable
-  mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
+# label first half of nodes
+labels = random.choices(range(5), k= G.vcount() // 2)
+labels += list(range(5, G.vcount() // 2))
 
-  part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
-                                  initial_membership=labels,
-                                  mutable_nodes=mutable)
+# set first half of nodes as immutable
+mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
+
+part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
+                                initial_membership=labels,
+                                mutable_nodes=mutable)
+```
 
 Contribute
 ----------
@@ -176,7 +182,7 @@ Please cite the references appropriately in case they are used.
 Licence
 -------
 
-Copyright (C) 2016 V.A. Traag
+Copyright (C) 2020 D.Y. Hawkins 2016 V.A. Traag
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
