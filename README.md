@@ -17,20 +17,12 @@ constant Potts model (CPM) [4]_, (4) Significance [5]_, and finally (5)
 Surprise [6]_. In addition, it supports multiplex partition optimisation
 allowing community detection on for example negative links [7]_ or multiple
 time slices [8]_. It also provides some support for community detection on
-bipartite graphs. See the `documentation
-<http://louvain-igraph.readthedocs.io/en/latest/>`_ for more information.
+bipartite graphs. See the [documentation](http://louvain-igraph.readthedocs.io/en/latest/)`_ for more information.
 
-.. image:: https://readthedocs.org/projects/louvain-igraph/badge
-                :target: http://louvain-igraph.readthedocs.io/en/latest/
-                :alt: Louvain documentation status
+![Louvain Documentation](https://readthedocs.org/projects/louvain-igraph/badge "Louvain Documentation Status")
+![Louvian Build Status](https://travis-ci.org/vtraag/louvain-igraph.svg "Louvain Build Status")
+![DOI](https://zenodo.org/badge/31305324.svg "DOI")
 
-.. image:: https://travis-ci.org/vtraag/louvain-igraph.svg
-                :target: https://travis-ci.org/vtraag/louvain-igraph
-                :alt: Louvain build status
-
-.. image:: https://zenodo.org/badge/31305324.svg
-                :target: https://zenodo.org/badge/latestdoi/31305324
-                :alt: DOI
 Installation
 ------------
 
@@ -142,42 +134,37 @@ References
 
 Please cite the references appropriately in case they are used.
 
-.. [1] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008).
-       Fast unfolding of communities in large networks. Journal of Statistical
-       Mechanics: Theory and Experiment, 10008(10), 6.
-       `10.1088/1742-5468/2008/10/P10008 <http://doi.org/10.1088/1742-5468/2008/10/P10008>`_
+[1] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008).
+    Fast unfolding of communities in large networks. Journal of Statistical
+    Mechanics: Theory and Experiment, 10008(10), 6.
+    [10.1088/1742-5468/2008/10/P10008](http://doi.org/10.1088/1742-5468/2008/10/P10008)
 
-.. [2] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community
-       structure in networks. Physical Review E, 69(2), 026113.
-       `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+[2] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community
+    structure in networks. Physical Review E, 69(2), 026113.
+    [10.1103/PhysRevE.69.026113](http://doi.org/10.1103/PhysRevE.69.026113)
 
-.. [3] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
-       community detection. Physical Review E, 74(1), 016110.
-       `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+[3] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
+    community detection. Physical Review E, 74(1), 016110.
+    [10.1103/PhysRevE.74.016110](http://doi.org/10.1103/PhysRevE.74.016110)
 
-.. [4] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for
-       resolution-limit-free community detection. Physical Review E, 84(1),
-       016114.  `10.1103/PhysRevE.84.016114
-       <http://doi.org/10.1103/PhysRevE.84.016114>`_
+[4] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for
+    resolution-limit-free community detection. Physical Review E, 84(1),
+    016114. [10.1103/PhysRevE.84.016114](http://doi.org/10.1103/PhysRevE.84.016114)
 
-.. [5] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
-       community structure. Scientific Reports, 3, 2930.  `10.1038/srep02930
-       <http://doi.org/10.1038/srep02930>`_
+[5] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
+    community structure. Scientific Reports, 3, 2930. [10.1038/srep02930](http://doi.org/10.1038/srep02930)
 
-.. [6] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting
-       communities using asymptotical surprise. Physical Review E, 92(2),
-       022816.  `10.1103/PhysRevE.92.022816
-       <http://doi.org/10.1103/PhysRevE.92.022816>`_
+[6] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting
+    communities using asymptotical surprise. Physical Review E, 92(2),
+    022816. [10.1103/PhysRevE.92.022816](http://doi.org/10.1103/PhysRevE.92.022816)
 
-.. [7] Traag, V. A., & Bruggeman, J. (2009). Community detection in networks
-       with positive and negative links. Physical Review E, 80(3), 036115.
-       `10.1103/PhysRevE.80.036115
-       <http://doi.org/10.1103/PhysRevE.80.036115>`_
+[7] Traag, V. A., & Bruggeman, J. (2009). Community detection in networks
+    with positive and negative links. Physical Review E, 80(3), 036115.
+    [10.1103/PhysRevE.80.036115](http://doi.org/10.1103/PhysRevE.80.036115)
 
-.. [8] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela, J.-P.
-       (2010). Community structure in time-dependent, multiscale, and multiplex
-       networks. Science, 328(5980), 876–8. `10.1126/science.1184819
-       <http://doi.org/10.1126/science.1184819>`_
+[8] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela, J.-P.
+    (2010). Community structure in time-dependent, multiscale, and multiplex
+    networks. Science, 328(5980), 876–8. [10.1126/science.1184819](http://doi.org/10.1126/science.1184819)
 
 Licence
 -------
