@@ -53,8 +53,10 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
       throw Exception("Mutable vector has incorrect size.");
     }
     this -> set_mutable(mutables);
-    std::cout << "MutableVertexPartition line 56.\n";
-    this -> print_mutables();
+    #ifdef DEBUG
+      std::cout << "MutableVertexPartition line 56.\n";
+      this -> print_mutables();
+    #endif
 }
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph)
@@ -142,8 +144,10 @@ size_t MutableVertexPartition::nb_communities()
  * @param mutables: ordered vector defining which nodes have mutable labels
  */
 void MutableVertexPartition::set_mutable(vector<bool> const& mutables) {
-  std::cout << "setting mutables..." << std::endl;
-  print_stacktrace(stdout);
+  #ifdef DEBUG
+    std::cout << "setting mutables..." << std::endl;
+    print_stacktrace(stdout);
+  #endif
   if (mutables.size() != this -> graph -> vcount()) {
     string msg = "Size of passed mutables does not match expected size. Expected : ";
     msg.append(std::to_string(this -> graph -> vcount()));

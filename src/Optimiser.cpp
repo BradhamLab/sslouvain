@@ -47,8 +47,6 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  std::cout << "this opt also called " << std::endl;
-  partitions[0] -> print_mutables();
   return this->optimise_partition(partitions, layer_weights);
 }
 
@@ -67,8 +65,10 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   #endif
 
   double q = 0.0;
-  std::cout << "starting optimization\n";
-  partitions[0] -> print_mutables_and_membership();
+  #ifdef DEBUG
+    std::cout << "starting optimization\n";
+    partitions[0] -> print_mutables_and_membership();
+  #endif
   
   // Number of multiplex layers
   size_t nb_layers = partitions.size();
@@ -119,17 +119,15 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       for (size_t layer = 0; layer < nb_layers; layer++)
         q += partitions[layer]->quality()*layer_weights[layer];
       cerr << "Quality before moving " <<  q << endl;
+      std::cout << "Before movement \n";
+      collapsed_partitions[0] -> print_mutables_and_membership();
     #endif
-    std::cout << "Before movement \n";
-    collapsed_partitions[0] -> print_mutables_and_membership();
-  
     improv = this->move_nodes(collapsed_partitions, layer_weights);
     total_improv += improv;
 
-    std::cout << "After movement \n";
-    collapsed_partitions[0] -> print_mutables_and_membership();
-
     #ifdef DEBUG
+      std::cout << "After movement \n";
+      collapsed_partitions[0] -> print_mutables_and_membership();
       cerr << "Found " << collapsed_partitions[0]->nb_communities() << " communities, improved " << improv << endl;
       q = 0.0;
       for (size_t layer = 0; layer < nb_layers; layer++)
@@ -165,39 +163,39 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     {
       // for SemiSupervisedRBCVertexPartition we should renumber communities
       // before collapsing so tracking mutable communities is possible
-      std::cout << "Layer " << layer + 1 << " out of " << nb_layers << std:: endl;
-      vector<bool> current_mutables = partitions[layer] -> mutables();
-      std::cout << "Current membership: " << std::endl;
-      for (int i = 0; i < partitions[layer] -> membership().size(); i++) {
-        std::cout << partitions[layer] -> membership(i) << ", ";
-      }
-      std::cout << std::endl;
-      std::cout << "Mutable size " << current_mutables.size() << std::endl;
-      std::cout << "Current mutables: " << std::endl;
-      for (int i = 0; i < partitions[layer] -> mutables().size(); i++) {
-        std::cout << partitions[layer] -> mutables(i) << ", ";
-      }
-      std::cout << std::endl;
-      std::cout << "Collapsing mutables.\n";
+      #ifdef DEBUG
+        std::cout << "Layer " << layer + 1 << " out of " << nb_layers << std:: endl;
+        std::cout << "Current membership and mutables: " << std::endl;
+        partitions[layer] -> print_mutables_and_membership();
+        std::cout << "Collapsing mutables.\n";
+      #endif
       vector<bool> collapsed_mutables;
       collapsed_mutables.resize(partitions[layer] -> nb_communities());
-      std::cout << "collapsed_size " << collapsed_mutables.size() << std::endl;
+      #ifdef DEBUG
+        std::cout << "collapsed_size " << collapsed_mutables.size() << std::endl;
+      #endif
       // collapse edges, nodes, and mutable
       new_collapsed_graphs[layer] = collapsed_graphs[layer]->collapse_graph(collapsed_partitions[layer],
                                                                             collapsed_mutables);
-      std::cout << "Collapsed mutables..." << std::endl;
-      for (int i = 0; i < collapsed_mutables.size(); i++) {
-        std::cout << collapsed_mutables[i] << ", ";
-      }
-      std::cout << std::endl;
+      #ifdef DEBUG
+        std::cout << "Collapsed mutables..." << std::endl;
+        for (int i = 0; i < collapsed_mutables.size(); i++) {
+          std::cout << collapsed_mutables[i] << ", ";
+        }
+        std::cout << std::endl;
+      #endif
       // Create collapsed partition (i.e. default partition of each node in its own community).
       new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer]);
-      std::cout << "Collapsed membership..." << std::endl;
+      #ifdef DEBUG
+        std::cout << "Collapsed membership..." << std::endl;
+      #endif
       vector<size_t> new_membership = new_collapsed_partitions[layer] -> membership();
-      for (int i = 0; i < new_membership.size(); i++) {
-        std::cout << new_membership[i] << ", ";
-      }
-      std::cout << std::endl;
+      #ifdef DEBUG
+        for (int i = 0; i < new_membership.size(); i++) {
+          std::cout << new_membership[i] << ", ";
+        }
+        std::cout << std::endl;
+      #endif
       new_collapsed_partitions[layer] -> set_mutable(collapsed_mutables);
       
       #ifdef DEBUG
@@ -315,7 +313,6 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
 ******************************************************************************/
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
 {
-  std::cout << "Consider empty: " << this -> consider_empty_community << std::endl;
   return this->move_nodes(partitions, layer_weights, this->consider_comms, this->consider_empty_community);
 }
 
@@ -364,10 +361,14 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     improv = 0.0;
     nb_moves = 0;
     vector<size_t> mutable_nodes;
-    std::cout << "subsetting nodes...\n";
+    #ifdef DEBUG
+      std::cout << "subsetting nodes...\n";
+    #endif
     for (vector<size_t>::iterator v_it = nodes.begin(); v_it != nodes.end(); v_it ++) {
       if (partitions[0]->mutables(*v_it)) {
-        std::cout << "node " << *v_it << " set to mutable. Adding to subset.\n";
+        #ifdef DEBUG
+          std::cout << "node " << *v_it << " set to mutable. Adding to subset.\n";
+        #endif
         mutable_nodes.push_back(*v_it);
       }
     }
@@ -405,11 +406,6 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
           vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
-          std::cout << v << " neighbors: " << std::endl;
-          for (unsigned int i = 0; i < neigh_comm_layer.size(); i++) {
-            std::cout << neigh_comm_layer[i] << " ";
-          }
-          std::cout << endl;
           comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
       }
@@ -447,7 +443,6 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         #ifdef DEBUG
           cerr << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
         #endif
-        std::cout << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
 
         if (possible_improv > max_improv && possible_improv > eps)
         {
@@ -512,11 +507,10 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           #ifdef DEBUG
             // If we are debugging, calculate quality function
             double q1 = partition->quality();
+            std::cout << "Moving node {" << v << "} to comm {" << max_comm << "}\n";
+            std::cout << "Mode mutability set to {" << partition -> mutables(v) << "}\n";
           #endif
-
-          // Actually move the node
-          std::cout << "Moving node {" << v << "} to comm {" << max_comm << "}\n";
-          std::cout << "Mode mutability set to {" << partition -> mutables(v) << "}\n";
+          // actually move the node
           partition->move_node(v, max_comm);
           
           #ifdef DEBUG

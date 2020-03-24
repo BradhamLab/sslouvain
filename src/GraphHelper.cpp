@@ -736,13 +736,14 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition,
     else
       collapsed_edge_weights[v_comm][u_comm] = w;
   }
-  
-  std::cout<<"------------------Mutability Mapping --------------------------\n";
-  for (map<size_t, bool>::iterator itr = collapsed_mutables.begin();
-       itr != collapsed_mutables.end(); itr++) {
-    size_t comm = itr -> first; 
-    std::cout << "Community: " << itr -> first << ", " << "Mutability: " << itr -> second << std::endl;
-  }
+  #ifdef DEBUG
+    std::cout<<"------------------Mutability Mapping --------------------------\n";
+    for (map<size_t, bool>::iterator itr = collapsed_mutables.begin();
+        itr != collapsed_mutables.end(); itr++) {
+      size_t comm = itr -> first; 
+      std::cout << "Community: " << itr -> first << ", " << "Mutability: " << itr -> second << std::endl;
+    }
+  #endif
 
   // Now create vector for edges, first determined the number of edges
   size_t m_collapsed = 0;

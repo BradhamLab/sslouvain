@@ -7,7 +7,6 @@
 #include "GraphHelper.h"
 
 int main(void) {
-    std::cout << "hellloooo!" << std::endl;
     igraph_t graph;
 
     // FILE *ifile = fopen("data/integrated.gml", "r");
@@ -17,7 +16,6 @@ int main(void) {
     }
     // std::cout << "issues" << std::endl;
     int result = igraph_read_graph_graphml(&graph, ifile, 0);
-    std::cout << result << std::endl;
 
     igraph_vs_t vs;
     igraph_vit_t vit;
@@ -27,12 +25,10 @@ int main(void) {
     igraph_vit_create(&graph, vs, &vit);
     int i = 0;
     while (! IGRAPH_VIT_END(vit)) {
-    int node = IGRAPH_VIT_GET(vit);
-    printf(" %i, %i", i, node);
-    i += 1;
-    IGRAPH_VIT_NEXT(vit);
+        int node = IGRAPH_VIT_GET(vit);
+        i += 1;
+        IGRAPH_VIT_NEXT(vit);
     }
-    printf("\n");
     igraph_vit_destroy(&vit);
     igraph_vs_destroy(&vs);
 
@@ -64,17 +60,9 @@ int main(void) {
     //     }
     // }
 
-    
-    std::cout << mutables.size() << std::endl;
-    std::cout << init_membership.size() << std::endl;
     RBConfigurationVertexPartition test(&louvain_graph, init_membership, mutables);
     Optimiser opt = Optimiser();
     opt.optimise_partition(&test);
-    std::cout << "Optimized membership" << std::endl;
-    for (int i = 0; i < test.membership().size(); i++) {
-        std::cout << test.membership(i) << ", ";
-    }
-    std::cout << endl;
     igraph_destroy(&graph);
     return 0;
 }
