@@ -39,3 +39,7 @@ massif*
 *.code-workspace
 PACKAGE.txt
 louvain-igraph.cscope_file_list
+tests/makefile
+tests/cpp_tests.cpp
+build_sslouvain.sh
+sslouvain.egg-info/
