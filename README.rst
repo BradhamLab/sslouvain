@@ -1,11 +1,11 @@
-**Warning** 
+**Notice** 
 
-This package has been superseded by the `leidenalg <https://github.com/vtraag/leidenalg>`_ package and will no longer be maintained.
+This package is a fork of the no-longer-maintained `louvain-igraph <https://github.com/vtraag/louvain-igraph>`_ package that has been superseded by the `leidenalg <https://github.com/vtraag/leidenalg>`_ package. This package implements a semi-supervised version of Louvain community detection, where specified labels remain constant during optimization. The API is consistent with the original `louvain-igraph` and functionality and implementation should be unchanged. 
 
 louvain-igraph
 ==============
 
-This package implements the louvain algorithm in ``C++`` and exposes it to
+This package implements a semi-superised version of the louvain algorithm in ``C++`` and exposes it to
 ``python``.  It relies on ``(python-)igraph`` for it to function. Besides the
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
@@ -34,7 +34,7 @@ bipartite graphs. See the `documentation
 Installation
 ------------
 
-In short, for Unix: ``pip install louvain``. For Windows: download the binary
+In short, for Unix: ``pip install sslouvain``. For Windows: download the binary
 installers.
 
 For Unix like systems it is possible to install from source. For Windows this
@@ -79,7 +79,7 @@ Troubleshooting
 In case of any problems, best to start over with a clean environment. Make sure
 you remove the python-igraph package completely, remove the ``C`` core library
 and remove the louvain package. Then, do a complete reinstall starting from
-``pip install louvain``. In case you want a dynamic library be sure to then
+``pip install sslouvain``. In case you want a dynamic library be sure to then
 install the ``C`` core library from source before. Make sure you **install the
 same versions**.
 
@@ -94,23 +94,39 @@ on function calls and parameters.
 Just to get you started, below the essential parts.
 To start, make sure to import the packages:
 
->>> import louvain
+>>> import sslouvain
 >>> import igraph as ig
 
 We'll create a random graph for testing purposes:
 
 >>> G = ig.Graph.Erdos_Renyi(100, 0.1);
 
-For simply finding a partition use:
+For finding a partition using traditional louvain community detection:
 
->>> part = louvain.find_partition(G, louvain.ModularityVertexPartition);
+>>> part = sslouvain.find_partition(G, louvain.ModularityVertexPartition);
 
+However, by specifiying both initial membership and mutable nodes, we can perform semi-supervised clustering.
+
+```{python}
+import random
+
+# label first half of nodes
+labels = random.choices(range(5), k= G.vcount() // 2)
+labels += list(range(5, G.vcount() // 2))
+
+# set first half of nodes as immutable
+mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
+
+part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
+                                initial_membership=labels,
+                                mutable_nodes=mutable)
+```
 Contribute
 ----------
 
-Source code: https://github.com/vtraag/louvain-igraph
+Source code: https://github.com/dakota-hawkins/igraph-sslouvain
 
-Issue tracking: https://github.com/vtraag/louvain-igraph/issues
+Issue tracking: https://github.com/dakota-hawkins/igraph-sslouvain/issues
 
 See the documentation on `Implementation` for more details on how to
 contribute new methods.
