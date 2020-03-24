@@ -655,8 +655,7 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         mutable_nodes.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
+        for (size_t v = 0; v < n; v++) {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
@@ -682,6 +681,10 @@ extern "C"
           } else {
             mutable_nodes[v] = true;
           }
+          partition = new RBConfigurationVertexPartition(graph,
+                                                         initial_membership,
+                                                         mutable_nodes,
+                                                         resolution_parameter);
         }
       } else {
         partition = new RBConfigurationVertexPartition(graph, resolution_parameter);
