@@ -107,20 +107,19 @@ For finding a partition using traditional louvain community detection:
 
 However, by specifiying both initial membership and mutable nodes, we can perform semi-supervised clustering.
 
-```python
-import random
+.. code-block:: python
+  import random
 
-# label first half of nodes
-labels = random.choices(range(5), k= G.vcount() // 2)
-labels += list(range(5, G.vcount() // 2))
+  # label first half of nodes
+  labels = random.choices(range(5), k= G.vcount() // 2)
+  labels += list(range(5, G.vcount() // 2))
 
-# set first half of nodes as immutable
-mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
+  # set first half of nodes as immutable
+  mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
 
-part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
-                                initial_membership=labels,
-                                mutable_nodes=mutable)
-```
+  part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
+                                  initial_membership=labels,
+                                  mutable_nodes=mutable)
 
 Contribute
 ----------
