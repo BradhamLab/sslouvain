@@ -68,10 +68,9 @@ extern "C"
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
     #ifdef DEBUG
       cerr << "Using partition at address " << partition << endl;
+      std::cout << "membership before calling optimize_partition()..." << std::endl;
+      partition -> print_mutables();
     #endif
-
-    std::cout << "membership before calling optimize_partition()..." << std::endl;
-    partition -> print_mutables();
 
     double q = 0.0;
     try
