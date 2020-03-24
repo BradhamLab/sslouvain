@@ -15,9 +15,10 @@ class RBConfigurationVertexPartition : public LinearResolutionParameterVertexPar
                                    vector<size_t> const& membership,
                                    vector<bool> const& mutables);
     RBConfigurationVertexPartition(Graph* graph,
-          vector<size_t> const& membership, double resolution_parameter);
+                                   vector<size_t> const& membership,
+                                   double resolution_parameter);
     RBConfigurationVertexPartition(Graph* graph,
-          vector<size_t> const& membership);
+          vector<size_t> membership);
     RBConfigurationVertexPartition(Graph* graph,
       double resolution_parameter);
     RBConfigurationVertexPartition(Graph* graph);

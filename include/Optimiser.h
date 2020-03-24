@@ -53,7 +53,6 @@ class Optimiser
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.
     static const int RAND_COMM = 3;       // Consider a random commmunity for improvement.
     static const int RAND_NEIGH_COMM = 4; // Consider a random community among the neighbours for improvement.
-    static const int MUTABLE_NEIGH_COMMS = 5; // Consider all neighbor communities for communities, given node v is mutable
 
   protected:
 

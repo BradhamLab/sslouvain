@@ -56,9 +56,6 @@ class Optimiser(object):
     * :attr:`louvain.RAND_COMM`
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
-
-    * :attr:`louvain.MUTABLE_NEIGH_COMM`
-      Consider all neighboring communities for mutable vertices.
     """
     return _c_louvain._Optimiser_get_consider_comms(self._optimiser)
 
@@ -105,7 +102,6 @@ class Optimiser(object):
     >>> diff = optimiser.optimise_partition(partition)
 
     """
-    # Perhaps we
     diff = _c_louvain._Optimiser_optimise_partition(self._optimiser, partition._partition)
     partition._update_internal_membership()
     return diff

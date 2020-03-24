@@ -70,6 +70,9 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    std::cout << "membership before calling optimize_partition()..." << std::endl;
+    partition -> print_mutables();
+
     double q = 0.0;
     try
     {
@@ -88,7 +91,7 @@ extern "C"
     PyObject* py_optimiser = NULL;
     PyObject* py_partitions = NULL;
     PyObject* py_layer_weights = NULL;
-
+    std::cout << "THIS SHOULD BE CALLED!!!!!!!!!!!" << std::endl;
     if (!PyArg_ParseTuple(args, "OOO", &py_optimiser, &py_partitions, &py_layer_weights))
         return NULL;
 
@@ -145,7 +148,7 @@ extern "C"
     #ifdef DEBUG
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
-
+    std::cout << 'optimizing..\n'; 
     double q = 0.0;
     try
     {

@@ -1,30 +1,39 @@
 #include "RBConfigurationVertexPartition.h"
+#include <iostream>
+
+#define BOOST_STACKTRACE_USE_ADDR2LINE
+#include <boost/stacktrace.hpp>
 
 // ss modificaitons 
-RBConfigurationVertexPartition::RBConfigurationVertexPartition(
-  Graph* graph,
-  vector<size_t> const& membership,
-  vector<bool> const& mutables,
-  double resolution_parameter) : LinearResolutionParameterVertexPartition(
-    graph, membership, mutables, resolution_parameter)
-{ }
-
-RBConfigurationVertexPartition::RBConfigurationVertexPartition(
-  Graph* graph,
-  vector<size_t> const& membership,
-  vector<bool> const& mutables) : LinearResolutionParameterVertexPartition(
-    graph, membership, mutables)
-{ }
-
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> const& membership, double resolution_parameter) :
+                                                               vector<size_t> const& membership,
+                                                               vector<bool> const& mutables,
+                                                               double resolution_parameter) :
+  LinearResolutionParameterVertexPartition(graph,
+                                           membership,
+                                           mutables,
+                                           resolution_parameter)
+{ }
+
+RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+                                                               vector<size_t> const& membership,
+                                                               vector<bool> const& mutables) :
+  LinearResolutionParameterVertexPartition(graph,
+                                           membership,
+                                           mutables)
+{ this -> set_mutable(mutables);}
+
+RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
+                                                               vector<size_t> const& membership,
+                                                               double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
-        membership, resolution_parameter)
+                                                 membership,
+                                                 resolution_parameter)
 { }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> const& membership) :
+      vector<size_t> membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -50,6 +59,7 @@ RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* gr
 {
   return new RBConfigurationVertexPartition(graph, membership, this->resolution_parameter);
 }
+
 
 /*****************************************************************************
   Returns the difference in modularity if we move a node to a new community

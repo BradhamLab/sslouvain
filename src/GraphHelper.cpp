@@ -698,7 +698,8 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t
   of a node in the new graph is simply the size of the community in the old
   graph.
 *****************************************************************************/
-Graph* Graph::collapse_graph(MutableVertexPartition* partition)
+Graph* Graph::collapse_graph(MutableVertexPartition* partition,
+                            vector<bool>& mutables)
 {
   #ifdef DEBUG
     cerr << "Graph* Graph::collapse_graph(vector<size_t> membership)" << endl;
@@ -709,7 +710,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     cerr << "Current graph has " << this->vcount() << " nodes and " << this->ecount() << " edges." << endl;
     cerr << "Collapsing to graph with " << partition->nb_communities() << " nodes." << endl;
   #endif
-
+  map<size_t, bool> collapsed_mutables;
   vector< map<size_t, double> > collapsed_edge_weights(partition->nb_communities());
 
   igraph_integer_t v, u;
@@ -719,11 +720,30 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     igraph_edge(this->_graph, e, &v, &u);
     size_t v_comm = partition->membership((size_t)v);
     size_t u_comm = partition->membership((size_t)u);
+    // set community mutability to false if any nodes in community are immutable
+    if (collapsed_mutables.find(v_comm) == collapsed_mutables.end()) {
+      collapsed_mutables[v_comm] = partition -> mutables((size_t) v);
+    } else if (! partition -> mutables((size_t)v)) {
+      collapsed_mutables[v_comm] = false;
+    }
+    if (collapsed_mutables.find(u_comm) == collapsed_mutables.end()) {
+      collapsed_mutables[u_comm] = partition -> mutables((size_t) u);
+    } else if (! partition -> mutables((size_t) u)) {
+      collapsed_mutables[u_comm] = false;
+    }
     if (collapsed_edge_weights[v_comm].count(u_comm) > 0)
       collapsed_edge_weights[v_comm][u_comm] += w;
     else
       collapsed_edge_weights[v_comm][u_comm] = w;
   }
+  #ifdef DEBUG
+    std::cout<<"------------------Mutability Mapping --------------------------\n";
+    for (map<size_t, bool>::iterator itr = collapsed_mutables.begin();
+        itr != collapsed_mutables.end(); itr++) {
+      size_t comm = itr -> first; 
+      std::cout << "Community: " << itr -> first << ", " << "Mutability: " << itr -> second << std::endl;
+    }
+  #endif
 
   // Now create vector for edges, first determined the number of edges
   size_t m_collapsed = 0;
@@ -777,6 +797,22 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     csizes[c] = partition->csize(c);
 
   Graph* G = new Graph(graph, collapsed_weights, csizes, this->_correct_self_loops);
+  // iterate through nodes
+  igraph_vs_t vs;
+  igraph_vit_t vit;
+  mutables.resize(partition -> nb_communities());
+  igraph_vs_all(&vs); // all nodes
+  igraph_vit_create(graph, vs, &vit);
+  int i = 0;
+  while (! IGRAPH_VIT_END(vit)) {
+    size_t node = IGRAPH_VIT_GET(vit);
+    mutables[i] = collapsed_mutables[node];
+    i += 1;
+    IGRAPH_VIT_NEXT(vit);
+  }
+  igraph_vit_destroy(&vit);
+  igraph_vs_destroy(&vs);
+
   G->_remove_graph = true;
   #ifdef DEBUG
     cerr << "exit Graph::collapse_graph(vector<size_t> membership)" << endl << endl;

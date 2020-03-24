@@ -501,7 +501,6 @@ extern "C"
             mutable_nodes[v] = true;
           }
         }
-
         partition = new CPMVertexPartition(graph, initial_membership, 
                                            mutable_nodes, resolution_parameter);
       }
@@ -619,21 +618,22 @@ extern "C"
     }
   }
 
+
   PyObject* _new_RBConfigurationVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
-    PyObject* py_mutable_nodes = NULL;
     PyObject* py_weights = NULL;
+    PyObject* py_mutable_nodes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership",
-                             "mutable_nodes", "weights", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "mutable_nodes",
+                             "weights", "resolution_parameter", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
                                      &py_obj_graph, &py_initial_membership,
-                                     &py_mutable_nodes,
-                                     &py_weights, &resolution_parameter))
+                                     &py_mutable_nodes, &py_weights,
+                                     &resolution_parameter))
         return NULL;
 
     try
@@ -644,8 +644,7 @@ extern "C"
       RBConfigurationVertexPartition* partition = NULL;
 
       // If necessary create an initial partition
-      if (py_initial_membership != NULL && py_initial_membership != Py_None)
-      {
+      if (py_initial_membership != NULL && py_initial_membership != Py_None) {
 
         vector<size_t> initial_membership;
         vector<bool> mutable_nodes;
@@ -656,8 +655,7 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         mutable_nodes.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
+        for (size_t v = 0; v < n; v++) {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
@@ -683,100 +681,15 @@ extern "C"
           } else {
             mutable_nodes[v] = true;
           }
+          partition = new RBConfigurationVertexPartition(graph,
+                                                         initial_membership,
+                                                         mutable_nodes,
+                                                         resolution_parameter);
         }
-
-        partition = new RBConfigurationVertexPartition(graph, initial_membership,
-                                                       mutable_nodes,
+      } else {
+        partition = new RBConfigurationVertexPartition(graph,
                                                        resolution_parameter);
       }
-      else
-        partition = new RBConfigurationVertexPartition(graph, resolution_parameter);
-
-      // Do *NOT* forget to remove the graph upon deletion
-      partition->destructor_delete_graph = true;
-
-      PyObject* py_partition = capsule_MutableVertexPartition(partition);
-      #ifdef DEBUG
-        cerr << "Created capsule partition at address " << py_partition << endl;
-      #endif
-
-      return py_partition;
-    }
-    catch (std::exception const & e )
-    {
-      string s = "Could not construct partition: " + string(e.what());
-      PyErr_SetString(PyExc_BaseException, s.c_str());
-      return NULL;
-    }
-  }
-
-// SS implementation
-
-  PyObject* _new_SemiSupervisedRBCVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_obj_graph = NULL;
-    PyObject* py_initial_membership = NULL;
-    PyObject* py_mutable_nodes = NULL;
-    PyObject* py_weights = NULL;
-    double resolution_parameter = 1.0;
-
-    static char* kwlist[] = {"graph", "initial_membership", "weights",
-                             "mutable_nodes", "resolution_parameter", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership,
-                                     &py_weights, &py_mutable_nodes,
-                                     &resolution_parameter))
-        return NULL;
-
-    try {
-
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
-
-      SemiSupervisedRBCVertexPartition* partition = NULL;
-
-      // If necessary create an initial partition
-      if (py_initial_membership != NULL && py_initial_membership != Py_None) {
-
-        vector<size_t> initial_membership;
-        vector<bool> mutable_nodes;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        initial_membership.resize(n);
-        mutable_nodes.resize(n);
-        for (size_t v = 0; v < n; v++) {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item)) {
-            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
-            else
-              throw Exception("Membership cannot be negative");
-          }
-          else {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-          // set mutables
-          PyObject* py_mut = PyList_GetItem(py_mutable_nodes, v);
-          if (PyBool_Check(py_mut)) {
-            mutable_nodes[v] = PyObject_IsTrue(py_mut);
-          } else {
-            PyErr_SetString(PyExc_TypeError, "Expected boolean value for mutable vector");
-            return NULL;
-          }
-        }
-
-        partition = new SemiSupervisedRBCVertexPartition(graph, initial_membership,
-                                                         resolution_parameter,
-                                                         mutable_nodes);
-      }
-      else
-        partition = new SemiSupervisedRBCVertexPartition(graph, resolution_parameter);
-
       // Do *NOT* forget to remove the graph upon deletion
       partition->destructor_delete_graph = true;
 
@@ -1108,11 +1021,15 @@ extern "C"
     #endif
 
     // First collapse graph (i.e. community graph)
-    Graph* collapsed_graph = partition->get_graph()->collapse_graph(partition);
+    vector<bool> collapsed_mutables;
+    collapsed_mutables.resize(partition -> nb_communities());
+    Graph* collapsed_graph = partition->get_graph()->collapse_graph(partition,
+                                                                    collapsed_mutables);
 
     // Create collapsed partition (i.e. default partition of each node in its own community).
     MutableVertexPartition* collapsed_partition = partition->create(collapsed_graph);
-    collapsed_partition->destructor_delete_graph = true;
+    collapsed_partition -> set_mutable(collapsed_mutables);
+    collapsed_partition -> destructor_delete_graph = true;
 
     PyObject* py_collapsed_partition = capsule_MutableVertexPartition(collapsed_partition);
     return py_collapsed_partition;

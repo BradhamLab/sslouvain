@@ -15,7 +15,6 @@
 #include "RBERVertexPartition.h"
 #include "CPMVertexPartition.h"
 #include "Optimiser.h"
-#include "SemiSupervisedRBCVertexPartition.h"
 
 #include <sstream>
 
@@ -59,7 +58,6 @@ extern "C"
   PyObject* _new_CPMVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_RBERVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_RBConfigurationVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _new_SemiSupervisedRBCVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
 
 
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds);
