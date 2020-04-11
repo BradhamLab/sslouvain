@@ -791,9 +791,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     resolution_parameter : double
       Resolution parameter.
     """
-    warnings.warn("Semi-supervised implemention of RBConfigurationVertexPartion" 
-                  " is currently non-functional. Nodes are not held immutable, "
-                  "and normal louvain clustering occurs instead.")
+    
     if initial_membership is not None:
       initial_membership = list(initial_membership)
     if mutable_nodes is not None:
