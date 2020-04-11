@@ -1,8 +1,8 @@
 #include "RBConfigurationVertexPartition.h"
 #include <iostream>
 
-#define BOOST_STACKTRACE_USE_ADDR2LINE
-#include <boost/stacktrace.hpp>
+// #define BOOST_STACKTRACE_USE_ADDR2LINE
+// #include <boost/stacktrace.hpp>
 
 // ss modificaitons 
 
