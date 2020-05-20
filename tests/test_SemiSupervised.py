@@ -74,6 +74,23 @@ class BaseTest:
             member_idx = get_membership_index(partition.membership)
             self.assertDictEqual(member_idx, singleton_dict)
 
+        def test_empty_post_movement(self):
+            weights = [11428, 220, 2, 420, 7048,
+                        1618, 36, 722, 1520]
+            edges = [(0, 0), (0, 1), (0, 2), (0, 1), (1, 1),
+                     (1, 2), (0, 2), (1, 2), (2, 2)]
+            g = ig.Graph()
+            g.add_vertices(3)
+            g.add_edges(edges)
+            g.es['weight'] = weights
+
+            part = sslouvain.find_partition(g,
+                                            sslouvain.RBConfigurationVertexPartition,
+                                            initial_membership=[0, 1, 2],
+                                            mutable_nodes=[False, False, True],
+                                            weights=weights)
+            self.assertListEqual(part.membership, [1, 0, 0])
+
 # class LargeTest:
     @ddt
     class UnknownPartitions(unittest.TestCase):
