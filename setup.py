@@ -599,6 +599,7 @@ buildcfg.process_args_from_command_line();
 
 louvain_ext = Extension('sslouvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
+                    # extra_compile_args=['-g', '-DDEBUG'],
                     include_dirs=['include']);
 
 cmdclass = versioneer.get_cmdclass()
