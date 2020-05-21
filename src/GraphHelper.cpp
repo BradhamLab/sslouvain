@@ -741,7 +741,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition,
     for (map<size_t, bool>::iterator itr = collapsed_mutables.begin();
         itr != collapsed_mutables.end(); itr++) {
       size_t comm = itr -> first; 
-      std::cout << "Community: " << itr -> first << ", " << "Mutability: " << itr -> second << std::endl;
+      cerr << "Community: " << itr -> first << ", " << "Mutability: " << itr -> second << endl;
     }
   #endif
 
