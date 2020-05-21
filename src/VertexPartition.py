@@ -2,7 +2,6 @@ import igraph as _ig
 from . import _c_louvain
 from .functions import _get_py_capsule
 import sys
-import warnings
 # Check if working with Python 3
 PY3 = (sys.version > '3')
 
