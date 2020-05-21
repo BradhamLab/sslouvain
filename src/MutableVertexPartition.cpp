@@ -453,7 +453,7 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   #ifdef DEBUG
     cerr << "Removed from old community." << endl;
   #endif
-
+  
   // We have to use the size of the set of nodes rather than the csize
   // to account for nodes that have a zero size (i.e. community may not be empty, but
   // may have zero size).
