@@ -1,4 +1,7 @@
 #include "Optimiser.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <fstream>
 
 /****************************************************************************
   Create a new Optimiser object
@@ -23,7 +26,8 @@
 Optimiser::Optimiser()
 {
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
-  this->consider_empty_community = true;
+  // this->consider_empty_community = true;
+  this -> consider_empty_community = false;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
   igraph_rng_seed(&rng, rand());
@@ -66,7 +70,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
   double q = 0.0;
   #ifdef DEBUG
-    std::cout << "starting optimization\n";
+    cerr << "starting optimization\n";
     partitions[0] -> print_mutables_and_membership();
   #endif
   
@@ -110,23 +114,25 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // As long as there remains improvement iterate
   double total_improv = 0.0;
   double improv = 0.0;
-  do
-  {
-
+  #ifdef DEBUG
+    int n_iters = 0;
+  #endif
+  do {
     // Optimise partition for collapsed graph
     #ifdef DEBUG
+      cerr << "First pass number: " << n_iters << endl;
       q = 0.0;
       for (size_t layer = 0; layer < nb_layers; layer++)
         q += partitions[layer]->quality()*layer_weights[layer];
       cerr << "Quality before moving " <<  q << endl;
-      std::cout << "Before movement \n";
+      cerr << "Before movement \n";
       collapsed_partitions[0] -> print_mutables_and_membership();
     #endif
     improv = this->move_nodes(collapsed_partitions, layer_weights);
     total_improv += improv;
 
     #ifdef DEBUG
-      std::cout << "After movement \n";
+      cerr << "After movement \n";
       collapsed_partitions[0] -> print_mutables_and_membership();
       cerr << "Found " << collapsed_partitions[0]->nb_communities() << " communities, improved " << improv << endl;
       q = 0.0;
@@ -164,37 +170,37 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       // for SemiSupervisedRBCVertexPartition we should renumber communities
       // before collapsing so tracking mutable communities is possible
       #ifdef DEBUG
-        std::cout << "Layer " << layer + 1 << " out of " << nb_layers << std:: endl;
-        std::cout << "Current membership and mutables: " << std::endl;
+        cerr << "Layer " << layer + 1 << " out of " << nb_layers << std:: endl;
+        cerr << "Current membership and mutables: " << std::endl;
         partitions[layer] -> print_mutables_and_membership();
-        std::cout << "Collapsing mutables.\n";
+        cerr << "Collapsing mutables.\n";
       #endif
       vector<bool> collapsed_mutables;
       collapsed_mutables.resize(partitions[layer] -> nb_communities());
       #ifdef DEBUG
-        std::cout << "collapsed_size " << collapsed_mutables.size() << std::endl;
+        cerr << "collapsed_size " << collapsed_mutables.size() << std::endl;
       #endif
       // collapse edges, nodes, and mutable
       new_collapsed_graphs[layer] = collapsed_graphs[layer]->collapse_graph(collapsed_partitions[layer],
                                                                             collapsed_mutables);
       #ifdef DEBUG
-        std::cout << "Collapsed mutables..." << std::endl;
+        cerr << "Collapsed mutables..." << std::endl;
         for (int i = 0; i < collapsed_mutables.size(); i++) {
-          std::cout << collapsed_mutables[i] << ", ";
+          cerr << collapsed_mutables[i] << ", ";
         }
-        std::cout << std::endl;
+        cerr << std::endl;
       #endif
       // Create collapsed partition (i.e. default partition of each node in its own community).
       new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer]);
       #ifdef DEBUG
-        std::cout << "Collapsed membership..." << std::endl;
+        cerr << "Collapsed membership..." << std::endl;
       #endif
       vector<size_t> new_membership = new_collapsed_partitions[layer] -> membership();
       #ifdef DEBUG
         for (int i = 0; i < new_membership.size(); i++) {
-          std::cout << new_membership[i] << ", ";
+          cerr << new_membership[i] << ", ";
         }
-        std::cout << std::endl;
+        cerr << std::endl;
       #endif
       new_collapsed_partitions[layer] -> set_mutable(collapsed_mutables);
       
@@ -250,10 +256,24 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
         cerr <<   "graph->correct_self_loops()=" << graphs[layer]->correct_self_loops()
              << ", collapsed_graph->correct_self_loops()="  << collapsed_graphs[layer]->correct_self_loops() << endl << endl;
       }
-    #endif // DEBUG
+    #endif DEBUG
+    
+    /* Write it back */
+    // int result;
+    // FILE* ofile;
+    // std::cerr << "Writing collapsed graph to file" << std::endl;
+    igraph_t* graph = collapsed_graphs[0] -> get_igraph();
+    size_t m = collapsed_graphs[0] -> ecount();
+    igraph_integer_t v, u;
+    for (size_t e = 0; e < m; e++) {
+      double w = collapsed_graphs[0]->edge_weight(e);
+      igraph_edge(graph, e, &v, &u);
+    }
 
   } while (improv > 0);
-
+  #ifdef DEBUG
+    cerr << "Out of while loops\n";
+  #endif DEBUG
   // Clean up memory after use.
   for (size_t layer = 0; layer < nb_layers; layer++)
   {
@@ -356,27 +376,34 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // As long as there remain changes
   double eps = 1e-10;
   double improv = 0.0;
-  while(nb_moves > 0)
-  {
+  vector<size_t> mutable_nodes;
+  vector<size_t> immutable_nodes;
+  #ifdef DEBUG
+    std::cout << "subsetting nodes...\n";
+  #endif
+  for (vector<size_t>::iterator v_it = nodes.begin(); v_it != nodes.end(); v_it ++) {
+    if (partitions[0]->mutables(*v_it)) {
+      #ifdef DEBUG
+        std::cerr << "node " << *v_it << " set to mutable. Adding to subset.\n";
+      #endif
+      mutable_nodes.push_back(*v_it);
+    } else {
+      immutable_nodes.push_back(*v_it);
+      #ifdef DEBUG
+        std::cerr << "node " << *v_it << " set to immumutable. Adding to subset.\n";
+      #endif
+    }
+  }
+  // for (vector<size_t>::iterator v_it = nodes.begin(); v_it != nodes.end(); v_it ++) {
+  //     mutable_nodes.push_back(*v_it);
+  // }
+  while(nb_moves > 0) {
     improv = 0.0;
     nb_moves = 0;
-    vector<size_t> mutable_nodes;
-    #ifdef DEBUG
-      std::cout << "subsetting nodes...\n";
-    #endif
-    for (vector<size_t>::iterator v_it = nodes.begin(); v_it != nodes.end(); v_it ++) {
-      if (partitions[0]->mutables(*v_it)) {
-        #ifdef DEBUG
-          std::cout << "node " << *v_it << " set to mutable. Adding to subset.\n";
-        #endif
-        mutable_nodes.push_back(*v_it);
-      }
-    }
     // vector<size_t> mutable_nodes = nodes;
-    for (vector<size_t>::iterator v_it = mutable_nodes.begin();
-         v_it!= mutable_nodes.end();
-         v_it++)
-    {
+    for (vector<size_t>::iterator v_it = nodes.begin();
+         v_it != nodes.end();
+         v_it ++) {
       size_t v = *v_it;
 
       set<size_t> comms;
@@ -384,6 +411,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       MutableVertexPartition* partition = NULL;
       // What is the current community of the node (this should be the same for all layers)
       size_t v_comm = partitions[0]->membership(v);
+      bool is_mutable = partitions[0]->mutables(v);
 
       if (consider_comms == ALL_COMMS)
       {
@@ -403,10 +431,13 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       else if (consider_comms == ALL_NEIGH_COMMS)
       {
         /****************************ALL NEIGH COMMS*****************************/
+        // this caches neighbor stuff and is necessary to run for non-mutable nodes
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
           vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
-          comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+          if (is_mutable) {
+            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+          }
         }
       }
       else if (consider_comms == RAND_COMM)
@@ -426,6 +457,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       #ifdef DEBUG
         cerr << "Consider " << comms.size() << " communities for moving node " << v << "." << endl;
       #endif
+      if (!is_mutable && comms.size() != 0) {
+        throw Exception("Node set to immutable but possible movements are greater than zero.");
+      }
 
       size_t max_comm = v_comm;
       double max_improv = 0.0;
@@ -451,8 +485,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         }
       }
 
-      // Check if we should move to an empty community
-      if (consider_empty_community)
+      // Check if we should move to an empty community -- only for mutable nodes
+      if (consider_empty_community && is_mutable)
       {
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
@@ -495,7 +529,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       {
         // Keep track of improvement
         improv += max_improv;
-
+        // double q_improv = 0;
         #ifdef DEBUG
           // If we are debugging, calculate quality function
           double q_improv = 0;
@@ -507,8 +541,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           #ifdef DEBUG
             // If we are debugging, calculate quality function
             double q1 = partition->quality();
-            std::cout << "Moving node {" << v << "} to comm {" << max_comm << "}\n";
-            std::cout << "Mode mutability set to {" << partition -> mutables(v) << "}\n";
+            cerr << "Moving node {" << v << "} to comm {" << max_comm << "}\n";
+            cerr << "Mode mutability set to {" << partition -> mutables(v) << "}\n";
           #endif
           // actually move the node
           partition->move_node(v, max_comm);
@@ -526,11 +560,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           #endif
         }
         #ifdef DEBUG
-          if (fabs(q_improv - max_improv) > 1e-16)
+          if (fabs(q_improv - max_improv) > 1e-4)
           {
             cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl
                  << " (diff_move=" << max_improv
                  << ", q2 - q1=" << q_improv << ")" << endl;
+            exit(EXIT_FAILURE);
           }
         #endif
 
