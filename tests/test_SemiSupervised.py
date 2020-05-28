@@ -91,6 +91,26 @@ class BaseTest:
                                             weights=weights)
             self.assertListEqual(part.membership, [1, 0, 0])
 
+        def test_neighbour_cacheing(self):
+            weights = [6910, 40, 136, 1928, 10, 5406, 1424,
+                       198, 206, 890, 3496, 558, 560, 52, 100, 1810]
+            edges = [(0,0), (0,1), (0,2), (0,3), (0,1), (1,1),
+                     (1,2), (1,3), (0,2), (1,2), (2,2), (2,3),
+                     (0,3), (1,3), (2,3), (3,3)]
+            labels = list(range(4))
+            mutables = [False, False, False, True]
+            g = ig.Graph()
+            g.add_vertices(len(labels))
+            g.add_edges(edges)
+            g.es['weight'] = weights
+
+            part = sslouvain.find_partition(g,
+                                            sslouvain.RBConfigurationVertexPartition,
+                                            initial_membership=labels,
+                                            mutable_nodes=mutables,
+                                            weights=weights)
+            self.assertListEqual(part.membership, [0, 1, 2, 0])
+
 # class LargeTest:
     @ddt
     class UnknownPartitions(unittest.TestCase):
