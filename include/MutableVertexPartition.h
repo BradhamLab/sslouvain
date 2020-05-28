@@ -63,6 +63,7 @@ class MutableVertexPartition
     // debugging
     void print_mutables();
     void print_mutables_and_membership();
+    void save_graph();
 
     size_t csize(size_t comm);
     set<size_t> const& get_community(size_t comm);

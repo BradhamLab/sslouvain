@@ -1,5 +1,8 @@
 #include "MutableVertexPartition.h"
 #include "stacktrace.h"
+#include <fstream>
+#include <iostream>
+#include "GraphHelper.h"
 
 #ifdef DEBUG
   using std::cerr;
@@ -128,6 +131,27 @@ void MutableVertexPartition::print_mutables_and_membership() {
   }
 }
 
+void MutableVertexPartition::save_graph() {
+  // write edges and weights
+  std::ofstream edgefile;
+  edgefile.open("edges.csv");
+  for (size_t e = 0; e < this->graph->ecount(); e++) {
+    double w = this-> graph -> edge_weight(e);
+    vector<size_t> edge = this -> graph -> edge(e);
+    edgefile << edge[0] << "," << edge[1] << "," << w << std::endl;
+  }
+  edgefile.close();
+  // write node communities + mutability
+  std::ofstream nodefile;
+  nodefile.open("nodes.csv");
+  for (size_t v = 0; v < this -> graph -> vcount(); v++) {
+    size_t comm = this -> membership(v);
+    bool mut = this -> mutables(v);
+    nodefile << comm << "," << mut << std::endl;
+  }
+  nodefile.close();
+}
+
 set<size_t> const& MutableVertexPartition::get_community(size_t comm)
 {
   return *(this->community[comm]);
@@ -146,7 +170,7 @@ size_t MutableVertexPartition::nb_communities()
 void MutableVertexPartition::set_mutable(vector<bool> const& mutables) {
   #ifdef DEBUG
     std::cout << "setting mutables..." << std::endl;
-    print_stacktrace(stdout);
+    // print_stacktrace(stdout);
   #endif
   if (mutables.size() != this -> graph -> vcount()) {
     string msg = "Size of passed mutables does not match expected size. Expected : ";
