@@ -26,8 +26,7 @@
 Optimiser::Optimiser()
 {
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
-  // this->consider_empty_community = true;
-  this -> consider_empty_community = false;
+  this->consider_empty_community = true;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
   igraph_rng_seed(&rng, rand());
@@ -435,9 +434,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
           vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
-          if (is_mutable) {
-            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
-          }
+          comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
       }
       else if (consider_comms == RAND_COMM)
@@ -457,9 +454,6 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       #ifdef DEBUG
         cerr << "Consider " << comms.size() << " communities for moving node " << v << "." << endl;
       #endif
-      if (!is_mutable && comms.size() != 0) {
-        throw Exception("Node set to immutable but possible movements are greater than zero.");
-      }
 
       size_t max_comm = v_comm;
       double max_improv = 0.0;
@@ -486,7 +480,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
 
       // Check if we should move to an empty community -- only for mutable nodes
-      if (consider_empty_community && is_mutable)
+      if (consider_empty_community)
       {
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
@@ -525,8 +519,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
       // If we actually plan to move the node
       // if (max_comm != v_comm && partitions[0] -> mutables(v))
-      if (max_comm != v_comm)
-      {
+      if (max_comm != v_comm && is_mutable) {
         // Keep track of improvement
         improv += max_improv;
         // double q_improv = 0;
@@ -560,11 +553,13 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           #endif
         }
         #ifdef DEBUG
-          if (fabs(q_improv - max_improv) > 1e-4)
-          {
+          if (fabs(q_improv - max_improv) > 1e-4) {
             cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl
                  << " (diff_move=" << max_improv
                  << ", q2 - q1=" << q_improv << ")" << endl;
+            cerr << "writing previous graph to file" << endl;
+            partition -> move_node(v, v_comm);
+            partition -> save_graph();
             exit(EXIT_FAILURE);
           }
         #endif
