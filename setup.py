@@ -42,7 +42,7 @@ from subprocess import Popen, PIPE
 from textwrap import dedent
 
 # Global version number. Keep the format of the next line intact.
-VERSION = '0.7.1'
+VERSION = '0.1.0'
 
 # Check Python's version info and exit early if it is too old
 if sys.version_info < (2, 5):
