@@ -2,7 +2,7 @@
 
 This package is a fork of the no-longer-maintained [`louvain-igraph`](https://github.com/vtraag/louvain-igraph) package that has been superseded by the [leidenalg](https://github.com/vtraag/leidenalg) package. This package implements a semi-supervised version of Louvain community detection, where specified labels remain constant during optimization. The API is consistent with the original `louvain-igraph` package, and functionality and implementation should be unchanged. 
 
-igraph-sslouvain
+sslouvain
 ================
 
 This package implements a semi-superised version of the louvain algorithm in `C++` and exposes it to
