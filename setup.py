@@ -652,7 +652,7 @@ options =  dict(
       'Topic :: Scientific/Engineering :: Mathematics',
       'Topic :: Scientific/Engineering :: Information Analysis',
       'Topic :: Sociology',
-      'Topic :: Single Cell Analysis',
+      'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
   cmdclass=cmdclass,
 );
