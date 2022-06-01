@@ -26,6 +26,13 @@ bipartite graphs. See the [documentation](http://louvain-igraph.readthedocs.io/e
 Installation
 ------------
 
+Currently, the package must be built locally. First, clone the repo and build the package by issueing the following commands from the repo head:
+
+```bash
+python setup.py build
+python setup.py install
+```
+
 In short, for Unix: `pip install sslouvain`. For Windows: download the binary
 installers.
 
