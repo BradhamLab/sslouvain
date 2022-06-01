@@ -2,7 +2,7 @@
 
 This package is a fork of the no-longer-maintained [`louvain-igraph`](https://github.com/vtraag/louvain-igraph) package that has been superseded by the [leidenalg](https://github.com/vtraag/leidenalg) package. This package implements a semi-supervised version of Louvain community detection, where specified labels remain constant during optimization. The API is consistent with the original `louvain-igraph` package, and functionality and implementation should be unchanged. 
 
-igraph-sslouvain
+sslouvain
 ================
 
 This package implements a semi-superised version of the louvain algorithm in `C++` and exposes it to
@@ -100,7 +100,7 @@ G = ig.Graph.Erdos_Renyi(100, 0.1)
 For finding a partition using traditional louvain community detection:
 
 ```python
-part = sslouvain.find_partition(G, sslouvain.ModularityVertexPartition)
+part = sslouvain.find_partition(G)
 ```
 
 However, by specifiying both initial membership and mutable nodes, we can perform semi-supervised clustering.
@@ -116,7 +116,7 @@ labels += list(range(5, G.vcount() // 2))
 # set first half of nodes as immutable
 mutable = [False] * G.vcount() // 2 + [True] * G.vcount() // 2
 
-part = sslouvain.find_partition(G, louvain.ModularityVertexPartition,
+part = sslouvain.find_partition(G
                                 initial_membership=labels,
                                 mutable_nodes=mutable)
 ```
@@ -138,15 +138,6 @@ python tests/test_Optimiser.py
 
 **Semi-supervised multiplex and bipartite partitioning is un-tested.**
 
-Contribute
-----------
-
-Source code: https://github.com/dakota-hawkins/igraph-sslouvain
-
-Issue tracking: https://github.com/dakota-hawkins/igraph-sslouvain/issues
-
-See the documentation on `Implementation` for more details on how to
-contribute new methods.
 
 References
 ----------
