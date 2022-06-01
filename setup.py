@@ -42,7 +42,7 @@ from subprocess import Popen, PIPE
 from textwrap import dedent
 
 # Global version number. Keep the format of the next line intact.
-VERSION = '0.7.1'
+VERSION = '0.1.1'
 
 # Check Python's version info and exit early if it is too old
 if sys.version_info < (2, 5):
@@ -607,7 +607,8 @@ cmdclass.update(build_ext=buildcfg.build_ext)
 
 options =  dict(
   name = 'sslouvain',
-  version=versioneer.get_version(),
+  version='0.1.0',
+#   version=versioneer.get_version(),
   description = 'ssLouvain extends the popular Louvain package.',
   long_description=
     """
@@ -650,7 +651,8 @@ options =  dict(
       'Programming Language :: C++',
       'Topic :: Scientific/Engineering :: Mathematics',
       'Topic :: Scientific/Engineering :: Information Analysis',
-      'Topic :: Sociology'
+      'Topic :: Sociology',
+      'Topic :: Single Cell Analysis',
     ],
   cmdclass=cmdclass,
 );
@@ -661,10 +663,10 @@ if "macosx" in get_platform() and "bdist_mpkg" in sys.argv:
             ('/usr/local/lib', [os.path.join('..', '..', 'fatbuild', 'libigraph.0.dylib')])
     ]
 
-if sys.version_info > (3, 0):
-    if build_py is None:
-        options["use_2to3"] = True
-    else:
-        options["cmdclass"]["build_py"] = build_py
+# if sys.version_info > (3, 0):
+#     if build_py is None:
+#         options["use_2to3"] = True
+#     else:
+#         options["cmdclass"]["build_py"] = build_py
 
 setup(**options);
